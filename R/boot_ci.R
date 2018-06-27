@@ -99,6 +99,10 @@ boot_ci_bca <- function(bt_resamples, stat, alpha, data = NULL){
     pluck("splits")
     # mutate(theta_i = get_theta_i(splits))
 
+  # `func` is name of bca argument for the orginal function
+  leave_one_out_theta <- loo_cv(dat) %>%
+    mutate(loo_est = map_dbl(splits, function(x, f) f(analysis(x)), f = func))
+
   theta_minus_one <- mean(leave_one_out_theta$theta_i)
   a <- sum( (theta_minus_one - leave_one_out_theta$theta_i) ^ 3) / ( 6 * (sum( (theta_minus_one - leave_one_out_theta$theta_i) ^ 2)) ^ (3 / 2) )
 
@@ -116,19 +120,4 @@ boot_ci_bca <- function(bt_resamples, stat, alpha, data = NULL){
   )
 }
 
-
-# TODO how to handle multiple `var` in boot_ci_bca
-          # one var of interest (ie Sepal.Width) but multiple (ie gender & income)
-
-# TODO throw error if `apparent` = TRUE for bootstrap_ci function calls
-
-# TODO concerned about numerical precision. Is default 2 sigfigs inadequate?
-          # increase num of digits in tibbles returned
-          # Is 2 enough? Is 3 enough? Is 4 enough?
-
-# TODO write desc
-
-# TODO keep updating API drafts
-          # visualizations (how does getting a hist look like?)
-          # parameters (? how does getting bias y std error look like)
 
