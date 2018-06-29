@@ -12,7 +12,7 @@ boot_ci_t <- function(bt_resamples, alpha, data = NULL) {
   est <- bt_splits %>% filter(id == "Apparent") %>% pull(wt_est)
   se <- bt_splits %>% filter(id == "Apparent") %>% pull(wt_var) %>% sqrt()
   pctl <- bt_splits %>% filter(id != "Apparent") %>% pull(Z) %>%
-    quantile(probs = c(0.025, 0.975)) %>% rev() %>% unname()
+    quantile(probs = c(alpha / 2, 1 - (alpha / 2))) %>% rev() %>% unname()
   student_ci <- est - pctl * se
 
 
