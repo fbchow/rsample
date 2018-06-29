@@ -13,7 +13,7 @@ get_tmean <- function(x)
             mean(analysis(x)[["Sepal.Width"]], trim = 0.1))
 
 
-# example to test with: getting a regression coef for one predictor
+# EX 1: estimating regression coeff for one predictor
 disp_effect <- function(dat) {
   lm_fit <- lm(mpg ~ ., data = dat)
   coef(lm_fit)["disp"]
@@ -29,13 +29,14 @@ bt_splits <- bootstraps(mtcars, times = 5000, apparent = TRUE) %>%
   mutate(
     model = map(splits, function(x) lm(mpg ~ ., data = analysis(x))),
     wt_est = map_dbl(model, function(x) coef(x)["wt"]),
-    wt_var = map_dbl(model, function(x) vcov(x)["wt", "wt"]))
-
-bt_splits <- bt_splits %>%
+    wt_var = map_dbl(model, function(x) vcov(x)["wt", "wt"])
+    ) %>%
+  as_tibble() %>% # TODO tried a bunch of purr funcs, none worked, this looks hacky
   mutate(
     original = bt_splits %>% filter(id == "Apparent") %>% pull(wt_est),
-    Z = (wt_est - original)/sqrt(wt_var)
+    Z = (wt_est - original) / sqrt(wt_var)
   )
+
 
 results_t <- rsample:::boot_ci_t(bt_splits, alpha = 0.05, data = NULL)
 results_bca <- rsample:::boot_ci_bca(bt_splits, func = disp_effect, alpha = 0.05, data = NULL)
