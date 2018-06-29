@@ -58,6 +58,7 @@ bt_splits <- bt_splits %>%
 
 results_t <- rsample:::boot_ci_t(bt_splits, alpha = 0.05, data = NULL)
 results_bca <- rsample:::boot_ci_bca(bt_splits, func = disp_effect, alpha = 0.05, data = NULL)
+results_perc <- rsample:::boot_ci_perc(bt_splits, alpha = 0.05, data = NULL)
 
 
 
@@ -69,27 +70,26 @@ bt <- bootstraps(iris, apparent = TRUE, times = 1000) %>%
   dplyr::mutate(tmean = get_tmean(splits))
 
 
-# results_t <- rsample:::boot_ci_t(
-#   bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
-#   stat = "tmean",
-#   alpha = 0.05,
-#   theta_obs = bt %>% dplyr::filter(id == "Apparent")
-# )
-
-results_percentile <- rsample:::boot_ci_perc(
-  bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
+results_t <- rsample:::boot_ci_t(
+  bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
   stat = "tmean",
   alpha = 0.05,
-  theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
+  theta_obs = bt %>% dplyr::filter(id == "Apparent")
 )
 
-# results_bca <- rsample:::boot_ci_bca(
-#   bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
-#   stat = "tmean",
+# results_percentile <- rsample:::boot_ci_perc(
+#   bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
 #   alpha = 0.05,
-#   var = "Sepal.Width",
-#   theta_obs = bt %>% dplyr::filter(id == "Apparent")
+#   theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
 # )
+
+results_bca <- rsample:::boot_ci_bca(
+  bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
+  stat = "tmean",
+  alpha = 0.05,
+  var = "Sepal.Width",
+  theta_obs = bt %>% dplyr::filter(id == "Apparent")
+)
 
 
 context("boot_ci: Sufficient Number of Bootstrap Resamples")
@@ -159,7 +159,6 @@ test_that('upper & lower confidence interval does not contain NA', {
   expect_error(
     rsample:::boot_ci_perc(
       bt_resamples = bt_na %>% dplyr::filter(id != "Apparent"),
-      stat = "tmean",
       alpha = 0.05,
       theta_obs = bt_na %>% dplyr::filter(id == "Apparent")
     )
@@ -180,7 +179,6 @@ test_that('alpha is a reasonable level of significance', {
   expect_error(
     rsample:::boot_ci_perc(
       bt_resamples = bt_na %>% dplyr::filter(id != "Apparent"),
-      stat = "tmean",
       alpha = 5,
       theta_obs = bt_na %>% dplyr::filter(id == "Apparent")
     )

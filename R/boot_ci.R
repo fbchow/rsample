@@ -68,7 +68,7 @@ boot_ci_bca <- function(bt_resamples, func, alpha, data = NULL){
 
 
   ### Estimating Z0 bias-correction
-  po <- mean(bt_resamples[["wt_est"]] <= theta_hat)
+  po <- mean(bt_resamples[["wt_est"]] <= theta_hat, na.rm = TRUE)
   Z0 <- qnorm(po)
   Za <- qnorm(1 - alpha / 2)
 
