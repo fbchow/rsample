@@ -4,7 +4,7 @@
 \alias{boot_ci_t}
 \title{Bootstrap Confidence Intervals}
 \usage{
-boot_ci_t(bt_resamples, stat, alpha, data = NULL, theta_obs)
+boot_ci_t(bt_resamples, alpha, data = NULL)
 }
 \description{
 Bootstrap Confidence Intervals
@@ -14,5 +14,6 @@ Calculate boostrap confidence intervals for a statistic of interest
 
  @importFrom dplyr mutate
  @importFrom stats sd
+ @importFrom dplyr as_tibble
  @export
 }
