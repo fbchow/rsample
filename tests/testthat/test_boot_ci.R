@@ -33,10 +33,10 @@ get_tmean <- function(x)
 
 
 # example to test with: getting a regression coef for one predictor
-# disp_effect <- function(dat) {
-#   lm_fit <- lm(mpg ~ ., data = dat)
-#   coef(lm_fit)["disp"]
-# }
+disp_effect <- function(dat) {
+  lm_fit <- lm(mpg ~ ., data = dat)
+  coef(lm_fit)["disp"]
+}
 
 # set.seed(55)
 # bt_splits <- bootstraps(mtcars, times = 20, apparent = TRUE) %>%
@@ -56,7 +56,8 @@ bt_splits <- bt_splits %>%
     Z = (wt_est - original)/sqrt(wt_var)
   )
 
-# rsample:::boot_ci_t(bt_splits, alpha = 0.05, data = NULL)
+results_t <- rsample:::boot_ci_t(bt_splits, alpha = 0.05, data = NULL)
+results_bca <- rsample:::boot_ci_bca(bt_splits, func = disp_effect, alpha = 0.05, data = NULL)
 
 
 
@@ -126,10 +127,10 @@ test_that("throw warning if theta_se equals 0 or infinity", {
 # })
 
 
-# test_that('z_pntl has two unique values', {
-#   expect_false(results_t$lower == results_t$upper)
-#   expect_true(results_percentile$lower == results_percentile$upper)
-# })
+test_that('z_pntl has two unique values', {
+  expect_false(results_t$lower == results_t$upper)
+  expect_true(results_percentile$lower == results_percentile$upper)
+})
 
 test_that('bootstrap resample estimates are unique',{
   times <- 1
