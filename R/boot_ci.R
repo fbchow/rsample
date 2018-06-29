@@ -5,30 +5,31 @@
 #'
 #'  @importFrom dplyr mutate
 #'  @importFrom stats sd
+#'  @importFrom dplyr as_tibble
 #'  @export
-boot_ci_t <- function(bt_resamples, stat, alpha, data = NULL, theta_obs) {
+boot_ci_t <- function(bt_resamples, alpha, data = NULL) {
 
-  theta_obs <- theta_obs[[stat]]
+#
+#   if (all(is.na(theta_obs)))
+#     stop("All statistics (theta_obs) are missing values.", call. = FALSE)
+#
+#   if (theta_se == 0 | theta_se == Inf)
+#     stop("Your standard error (theta_se) is 0 or infinity.", call. = FALSE)
 
-  if (all(is.na(theta_obs)))
-    stop("All statistics (theta_obs) are missing values.", call. = FALSE)
+  est <- bt_splits %>% filter(id == "Apparent") %>% pull(wt_est)
+  se <- bt_splits %>% filter(id == "Apparent") %>% pull(wt_var) %>% sqrt()
+  pctl <- bt_splits %>% filter(id != "Apparent") %>% pull(Z) %>%
+    quantile(probs = c(0.025, 0.975)) %>% rev() %>% unname()
+  student_ci <- est - pctl * se
 
-  theta_se <- sd(bt_resamples[[stat]], na.rm = TRUE) / sqrt(sum(!is.na((bt_resamples[[stat]]))))
-
-  if (theta_se == 0 | theta_se == Inf)
-    stop("Your standard error (theta_se) is 0 or infinity.", call. = FALSE)
-
-  z_dist <- (bt_resamples[[stat]] - theta_obs) / theta_se
-  z_pntl <- quantile(z_dist, probs = c(alpha / 2, 1 - (alpha) / 2), na.rm = TRUE)
-  ci <- theta_obs + z_pntl * theta_se
-
-  tibble(
-    lower = ci[1],
-    upper = ci[2],
+   tibble(
+    lower = student_ci[1],
+    upper = student_ci[2],
     alpha = alpha,
     method = "bootstrap-t"
   )
 }
+
 
 boot_ci_perc <- function(bt_resamples, stat, alpha, data = NULL, theta_obs) {
   z_dist <- bt_resamples[[stat]]

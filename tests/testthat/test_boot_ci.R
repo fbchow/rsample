@@ -9,10 +9,23 @@ library(dplyr)
 # Example Code -------------------------------------------------------
 
 # boostrap single statistic k = 1
-get_tmean <- function(x)
-  map_dbl(x,
-          function(x)
-            mean(analysis(x)[["Sepal.Width"]], trim = 0.1))
+# get_tmean <- function(x)
+#   map_dbl(x,
+#           function(x)
+#             mean(analysis(x)[["Sepal.Width"]], trim = 0.1))
+
+set.seed(55)
+bt_splits <- bootstraps(mtcars, times = 5000, apparent = TRUE) %>%
+  as_tibble() %>%
+  mutate(
+    model = map(splits, function(x) lm(mpg ~ ., data = analysis(x))),
+    wt_est = map_dbl(model, function(x) coef(x)["wt"]),
+    wt_var = map_dbl(model, function(x) vcov(x)["wt", "wt"]),
+    original = bt_splits %>% filter(id == "Apparent") %>% pull(wt_est),
+    Z = (wt_est - original)/sqrt(wt_var)
+  )
+
+
 
 # TODO try diff of medians
 data("attrition")
@@ -58,7 +71,26 @@ set.seed(55)
 bt_splits <- bootstraps(mtcars, times = 20, apparent = TRUE) %>%
   mutate(beta = map_dbl(splits, function(x) disp_effect(analysis(x))))
 
-View(bt_splits)
+
+bt_splits <- bootstraps(mtcars, times = 5000, apparent = TRUE) %>%
+  as_tibble() %>%
+  mutate(
+    model = map(splits, function(x) lm(mpg ~ ., data = analysis(x))),
+    wt_est = map_dbl(model, function(x) coef(x)["wt"]),
+    wt_var = map_dbl(model, function(x) vcov(x)["wt", "wt"]))
+
+bt_splits <- bt_splits %>%
+  mutate(
+    original = bt_splits %>% filter(id == "Apparent") %>% pull(wt_est),
+    Z = (wt_est - original)/sqrt(wt_var)
+  )
+
+boot_ci_t(bt_splits, alpha = 0.5, data = NULL)
+
+
+
+
+
 
 results_coeff <- rsample:::boot_ci_bca(
   bt_resamples = bt_splits,
