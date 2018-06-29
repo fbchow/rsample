@@ -61,14 +61,6 @@ results_bca <- rsample:::boot_ci_bca(bt_splits, func = disp_effect, alpha = 0.05
 
 
 
-# results_coeff <- rsample:::boot_ci_bca(
-#   bt_resamples = bt_splits,
-#   stat = "beta",
-#   alpha = 0.05
-#)
-
-
-
 set.seed(888)
 bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
   dplyr::mutate(tmean = get_tmean(splits))

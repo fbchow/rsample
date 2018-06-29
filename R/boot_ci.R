@@ -78,7 +78,7 @@ boot_ci_bca <- function(bt_resamples, func, alpha, data = NULL){
                                   pluck("splits", 1, "data")) %>%
     mutate(loo_est = map_dbl(splits, function(x, f) f(analysis(x)), f = func))
 
-  theta_minus_one <- mean(leave_one_out_theta$loo_est)
+  theta_minus_one <- mean(leave_one_out_theta$loo_est, na.rm = TRUE)
   a <- sum( (theta_minus_one - leave_one_out_theta$loo_est) ^ 3) / ( 6 * (sum( (theta_minus_one - leave_one_out_theta$loo_est) ^ 2)) ^ (3 / 2) )
 
   Zu <- (Z0 + Za) / ( 1 - a * (Z0 + Za)) + Z0 # upper limit for Z
