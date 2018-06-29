@@ -9,18 +9,19 @@
 #'  @export
 boot_ci_t <- function(bt_resamples, alpha, data = NULL) {
 
-#
-#   if (all(is.na(theta_obs)))
-#     stop("All statistics (theta_obs) are missing values.", call. = FALSE)
-#
-#   if (theta_se == 0 | theta_se == Inf)
-#     stop("Your standard error (theta_se) is 0 or infinity.", call. = FALSE)
-
   est <- bt_splits %>% filter(id == "Apparent") %>% pull(wt_est)
   se <- bt_splits %>% filter(id == "Apparent") %>% pull(wt_var) %>% sqrt()
   pctl <- bt_splits %>% filter(id != "Apparent") %>% pull(Z) %>%
     quantile(probs = c(0.025, 0.975)) %>% rev() %>% unname()
   student_ci <- est - pctl * se
+
+
+  if (all(is.na(est)))
+    stop("All bootstrap resample estimates (est) are missing values.", call. = FALSE)
+
+  if (se == 0 | se == Inf)
+    stop("Your standard error (se) is 0 or infinity.", call. = FALSE)
+
 
    tibble(
     lower = student_ci[1],
