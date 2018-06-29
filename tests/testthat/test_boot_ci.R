@@ -14,21 +14,6 @@ get_tmean <- function(x)
           function(x)
             mean(analysis(x)[["Sepal.Width"]], trim = 0.1))
 
-
-# TODO try diff of medians
-# data("attrition")
-# median_diff <- function(splits) {
-#   x <- analysis(splits)
-#   median(x$MonthlyIncome[x$Gender == "Female"]) -
-#     median(x$MonthlyIncome[x$Gender == "Male"])
-# }
-
-# stat_func <- function(splits) {
-#   x <- analysis(splits)
-#   median(x$MonthlyIncome[x$Gender == "Female"]) -
-#     median(x$MonthlyIncome[x$Gender == "Male"])
-# }
-
 # set.seed(353)
 # boot_resamples <- bootstraps(attrition, times = 1000, apparent = TRUE)
 # boot_resamples$wage_diff <- map_dbl(boot_resamples$splits, median_diff)
@@ -48,10 +33,10 @@ get_tmean <- function(x)
 
 
 # example to test with: getting a regression coef for one predictor
-disp_effect <- function(dat) {
-  lm_fit <- lm(mpg ~ ., data = dat)
-  coef(lm_fit)["disp"]
-}
+# disp_effect <- function(dat) {
+#   lm_fit <- lm(mpg ~ ., data = dat)
+#   coef(lm_fit)["disp"]
+# }
 
 # set.seed(55)
 # bt_splits <- bootstraps(mtcars, times = 20, apparent = TRUE) %>%
@@ -89,9 +74,7 @@ bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
 
 bt <- bootstraps(iris, apparent = TRUE, times = 1000) %>%
   dplyr::mutate(tmean = get_tmean(splits))
-#
-# bt_lm <- boostraps(iris, apparent = TRUE, times = 1000) %>%
-#   dplyr::mutate(tmean = get_tmean(splits))
+
 
 # results_t <- rsample:::boot_ci_t(
 #   bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
@@ -256,11 +239,10 @@ test_that(
     #   theta_obs = bt_norm %>% dplyr::filter(id == "Apparent")
     # )
 
-      # expect_equal(results_ttest$lower, results_boot_t$lower, tolerance = 0.01)
-      # expect_equal(results_ttest$upper, results_boot_t$upper, tolerance = 0.01)
-      #expect_equal(results_ttest$lower, results_boot_bca$lower, tolerance = 0.01)
-      #expect_equal(results_ttest$upper, results_boot_bca$upper, tolerance = 0.01)
-
+    # expect_equal(results_ttest$lower, results_boot_t$lower, tolerance = 0.01)
+    # expect_equal(results_ttest$upper, results_boot_t$upper, tolerance = 0.01)
+    #expect_equal(results_ttest$lower, results_boot_bca$lower, tolerance = 0.01)
+    #expect_equal(results_ttest$upper, results_boot_bca$upper, tolerance = 0.01)
   }
 )
 
