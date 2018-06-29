@@ -32,16 +32,14 @@ bt_splits <- bt_splits %>%
 
 
 results_t <- rsample:::boot_ci_t(bt_splits, alpha = 0.05, data = NULL)
-results_bca <- rsample:::boot_ci_bca(bt_splits, func = disp_effect, alpha = 0.05, data = NULL)
+results_bca <- rsample:::boot_ci_bca(bt_splits,
+                                     func = disp_effect,
+                                     alpha = 0.05,
+                                     data = NULL)
 results_perc <- rsample:::boot_ci_perc(bt_splits, alpha = 0.05, data = NULL)
 
 
-# boostrap single statistic k = 1
-# get_tmean <- function(x)
-#   map_dbl(x,
-#           function(x)
-#             mean(analysis(x)[["Sepal.Width"]], trim = 0.1))
-
+# Insufficient Number of Bootstrap Resamples
 bt_one <- bootstraps(mtcars, times = 1, apparent = TRUE)
 bt_one <- bt_one %>%
   as_tibble() %>%
@@ -55,9 +53,55 @@ bt_one <- bt_one %>%
     Z = (wt_est - original) / sqrt(wt_var)
   )
 
-# bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
-#   dplyr::mutate(tmean = get_tmean(splits))
-#
+results_percentile <- rsample:::boot_ci_perc(
+  bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
+  alpha = 0.05,
+  theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
+)
+
+
+context("boot_ci: Sufficient Number of Bootstrap Resamples")
+test_that("throw warning if theta_se equals 0 or infinity", {
+  set.seed(888)
+  bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
+    dplyr::mutate(tmean = get_tmean(splits))
+
+
+  expect_error(
+    rsample:::boot_ci_t(
+      bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
+      stat = "tmean",
+      alpha = 0.05,
+      theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
+    )
+  )
+})
+
+
+
+test_that("At least B=1000 replications needed to sufficiently reduce Monte Carlo sampling Error for BCa method",{
+  expect_error(
+    rsample:::boot_ci_bca(
+      bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
+      stat = "tmean",
+      alpha = 0.05,
+      theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
+    )
+  )
+})
+
+
+# bt_one
+test_that('theta_obs is not NA', {
+  expect_equal(sum(is.na(bt_one$tmean)), 0)
+})
+
+# bt_one
+test_that('bt_resamples is a bootstrap object', {
+  expect_equal(class(bt_one)[1], "bootstraps")
+})
+
+
 # bt <- bootstraps(iris, apparent = TRUE, times = 1000) %>%
 #   dplyr::mutate(tmean = get_tmean(splits))
 
@@ -68,11 +112,7 @@ bt_one <- bt_one %>%
 #   theta_obs = bt %>% dplyr::filter(id == "Apparent")
 # )
 
-# results_percentile <- rsample:::boot_ci_perc(
-#   bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
-#   alpha = 0.05,
-#   theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
-# )
+
 
 # results_bca <- rsample:::boot_ci_bca(
 #   bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
@@ -83,52 +123,28 @@ bt_one <- bt_one %>%
 # )
 
 
-# context("boot_ci: Sufficient Number of Bootstrap Resamples")
-# test_that("throw warning if theta_se equals 0 or infinity", {
-#   set.seed(888)
-#   bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
-#     dplyr::mutate(tmean = get_tmean(splits))
 
-  # expect_error(
-  #   rsample:::boot_ci_t(
-  #     bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
-  #     stat = "tmean",
-  #     alpha = 0.05,
-  #     theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
-  #   )
-  # )
-# })
 
-# test_that("At least B=1000 replications needed to sufficiently reduce Monte Carlo sampling Error for BCa method",{
-#   expect_error(
-#     rsample:::boot_ci_bca(
-#       bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
-#       stat = "tmean",
-#       alpha = 0.05,
-#       theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
-#     )
-#   )
+
+# test_that('z_pntl has two unique values', {
+#   expect_false(results_t$lower == results_t$upper)
+#   expect_true(results_percentile$lower == results_percentile$upper)
 # })
 
 
-test_that('z_pntl has two unique values', {
-  expect_false(results_t$lower == results_t$upper)
-  expect_true(results_percentile$lower == results_percentile$upper)
-})
-
-test_that('bootstrap resample estimates are unique',{
-  times <- 1
-  bt_same <- bootstraps(iris, apparent = TRUE, times = times) %>%
-    dplyr::mutate(tmean = rep(3, times + 1))
-  # expect_error(
-  #   rsample:::boot_ci_t(
-  #     bt_resamples = bt_same %>% dplyr::filter(id != "Apparent"),
-  #     stat = "tmean",
-  #     alpha = 0.05,
-  #     theta_obs = bt_same %>% dplyr::filter(id == "Apparent")
-  #   )
-  # )
-})
+# test_that('bootstrap resample estimates are unique',{
+#   times <- 1
+#   bt_same <- bootstraps(iris, apparent = TRUE, times = times) %>%
+#     dplyr::mutate(tmean = rep(3, times + 1))
+#   # expect_error(
+#   #   rsample:::boot_ci_t(
+#   #     bt_resamples = bt_same %>% dplyr::filter(id != "Apparent"),
+#   #     stat = "tmean",
+#   #     alpha = 0.05,
+#   #     theta_obs = bt_same %>% dplyr::filter(id == "Apparent")
+#   #   )
+#   # )
+# })
 
 
 context("boot_ci Prompt Errors: Too Many Missing Values")
@@ -158,13 +174,7 @@ test_that('upper & lower confidence interval does not contain NA', {
 
 })
 
-test_that('theta_obs is not NA', {
-  expect_equal(sum(is.na(bt_one$tmean)), 0)
-})
 
-test_that('bt_resamples is a bootstrap object', {
-  expect_equal(class(bt_one)[1], "bootstraps")
-})
 
 
 test_that('alpha is a reasonable level of significance', {
