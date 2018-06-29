@@ -53,7 +53,6 @@ boot_ci_perc <- function(bt_resamples, stat, alpha, data = NULL, theta_obs) {
 
 boot_ci_bca <- function(bt_resamples, stat, alpha, data = NULL){
 
-  # TODO then write a test case for that
   if (nrow(bt_resamples) < 1000)
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)
 
@@ -65,17 +64,8 @@ boot_ci_bca <- function(bt_resamples, stat, alpha, data = NULL){
     filter(id == "Apparent") %>%
     analysis() %>%
     pluck("splits", 1, "data")
-# dat <- dat[["splits"]][[1]][["data"]]
 
-# run this median test again
-  # median_difference <- median(dat$MonthlyIncome[dat$Gender == "Female"]) - median(dat$MonthlyIncome[dat$Gender == "Male"])
-
-
-  # TODO
-  # still want this to be generalised
-  # want to call in get_theta_i for beta coefficient from original data set
-  # theta_hat <- mean(bt_resamples[[stat]], na.rm = TRUE)
-  get_theta_i <-  function(dat) {
+    get_theta_i <-  function(dat) {
     lm_fit <- lm(mpg ~ ., data = dat)
     coef(lm_fit)["disp"]
   }
@@ -86,20 +76,6 @@ boot_ci_bca <- function(bt_resamples, stat, alpha, data = NULL){
   po <- mean(bt_resamples[[stat]] <= theta_hat)
   Z0 <- qnorm(po)
   Za <- qnorm(1 - alpha / 2)
-
-  # leave_one_out_theta = sapply(1:length(data), function(i){
-  #   leave_out_data = data[-i] # leave out the ith observation
-  #   theta_i = mean(leave_out_data)
-  # return(theta_i)    # returns a vector of means. mean of each bootstrap resample.
-  # })
-
-  # TODO
-  # generalise to different funtions
-  # want to call in the `disp_effect` function here
-  leave_one_out_theta <- loo_cv(dat) %>%
-    analysis() %>%
-    pluck("splits")
-    # mutate(theta_i = get_theta_i(splits))
 
   # `func` is name of bca argument for the orginal function
   leave_one_out_theta <- loo_cv(dat) %>%
@@ -121,5 +97,3 @@ boot_ci_bca <- function(bt_resamples, stat, alpha, data = NULL){
   method = "BCa"
   )
 }
-
-
