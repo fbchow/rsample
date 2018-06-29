@@ -3,35 +3,32 @@
 #' @details
 #' Calculate boostrap confidence intervals for a statistic of interest
 #'
-#'  @importFrom dplyr mutate
-#'  @importFrom stats sd
-#'  @importFrom dplyr as_tibble
-#'  @export
-boot_ci_t <- function(bt_resamples, alpha, data = NULL) {
+#' @importFrom dplyr mutate
+#' @importFrom stats sd quantile pnorm
+#' @importFrom dplyr as_tibble
+#' @export
+boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL, theta_obs, var_obs) {
 
-  est <- bt_resamples %>% filter(id == "Apparent") %>% pull(wt_est)
-  se <- bt_resamples %>% filter(id == "Apparent") %>% pull(wt_var) %>% sqrt()
-  pctl <- bt_resamples %>% filter(id != "Apparent") %>% pull(Z) %>%
-  quantile(probs = c(alpha / 2, 1 - alpha / 2)) %>% rev() %>% unname()
-  student_ci <- est - pctl * se
+  theta_obs <- theta_obs[[stat]]
+  var_obs <- var_obs[[stat_var]]
 
-  if (all(is.na(est)))
-    stop("All bootstrap resample estimates (est) are missing values.", call. = FALSE)
+  if (all(is.na(theta_obs)))
+    stop("All statistics (theta_obs) are missing values.", call. = FALSE)
 
-   if (se == 0 | se == Inf)
-    stop("Your standard error (se) is 0 or infinity.", call. = FALSE)
+  z_dist <- (bt_resamples[[stat]] - theta_obs) / sqrt(bt_resamples[[stat_var]])
+  z_pntl <- quantile(z_dist, probs = c(alpha / 2, 1 - (alpha) / 2), na.rm = TRUE)
+  ci <- theta_obs - z_pntl * sqrt(var_obs)
 
-
-   tibble(
-    lower = student_ci[1],
-    upper = student_ci[2],
+  tibble(
+    lower = min(ci),
+    upper = max(ci),
     alpha = alpha,
     method = "bootstrap-t"
   )
 }
 
 
-boot_ci_perc <- function(bt_resamples, alpha, data = NULL, theta_obs) {
+boot_ci_perc <- function(bt_resamples, alpha = 0.05, data = NULL, theta_obs) {
   z_dist <- bt_resamples[["Z"]]
 
   if (all(is.na(z_dist)))
@@ -50,7 +47,7 @@ boot_ci_perc <- function(bt_resamples, alpha, data = NULL, theta_obs) {
 }
 
 
-boot_ci_bca <- function(bt_resamples, func, alpha, data = NULL){
+boot_ci_bca <- function(bt_resamples, func, alpha = 0.05, data = NULL){
 
   if (nrow(bt_resamples) < 1000)
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)
