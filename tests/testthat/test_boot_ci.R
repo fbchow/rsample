@@ -5,14 +5,6 @@ library(purrr)
 library(tibble)
 library(dplyr)
 
-
-# boostrap single statistic k = 1
-get_tmean <- function(x)
-  map_dbl(x,
-          function(x)
-            mean(analysis(x)[["Sepal.Width"]], trim = 0.1))
-
-
 # EX 1: estimating regression coeff for one predictor
 disp_effect <- function(dat) {
   lm_fit <- lm(mpg ~ ., data = dat)
@@ -44,21 +36,37 @@ results_bca <- rsample:::boot_ci_bca(bt_splits, func = disp_effect, alpha = 0.05
 results_perc <- rsample:::boot_ci_perc(bt_splits, alpha = 0.05, data = NULL)
 
 
+# boostrap single statistic k = 1
+# get_tmean <- function(x)
+#   map_dbl(x,
+#           function(x)
+#             mean(analysis(x)[["Sepal.Width"]], trim = 0.1))
 
-set.seed(888)
-bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
-  dplyr::mutate(tmean = get_tmean(splits))
+bt_one <- bootstraps(mtcars, times = 1, apparent = TRUE)
+bt_one <- bt_one %>%
+  as_tibble() %>%
+  mutate(
+    model = map(splits, function(x) lm(mpg ~ ., data = analysis(x))),
+    wt_est = map_dbl(model, function(x) coef(x)["wt"]),
+    wt_var = map_dbl(model, function(x) vcov(x)["wt", "wt"]))
+bt_one <- bt_one %>%
+  mutate(
+    original = bt_splits %>% filter(id == "Apparent") %>% pull(wt_est),
+    Z = (wt_est - original) / sqrt(wt_var)
+  )
 
-bt <- bootstraps(iris, apparent = TRUE, times = 1000) %>%
-  dplyr::mutate(tmean = get_tmean(splits))
+# bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
+#   dplyr::mutate(tmean = get_tmean(splits))
+#
+# bt <- bootstraps(iris, apparent = TRUE, times = 1000) %>%
+#   dplyr::mutate(tmean = get_tmean(splits))
 
 
-results_t <- rsample:::boot_ci_t(
-  bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
-  stat = "tmean",
-  alpha = 0.05,
-  theta_obs = bt %>% dplyr::filter(id == "Apparent")
-)
+# results_t <- rsample:::boot_ci_t(
+#   bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
+#   alpha = 0.05,
+#   theta_obs = bt %>% dplyr::filter(id == "Apparent")
+# )
 
 # results_percentile <- rsample:::boot_ci_perc(
 #   bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
@@ -66,20 +74,20 @@ results_t <- rsample:::boot_ci_t(
 #   theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
 # )
 
-results_bca <- rsample:::boot_ci_bca(
-  bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
-  stat = "tmean",
-  alpha = 0.05,
-  var = "Sepal.Width",
-  theta_obs = bt %>% dplyr::filter(id == "Apparent")
-)
+# results_bca <- rsample:::boot_ci_bca(
+#   bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
+#   stat = "tmean",
+#   alpha = 0.05,
+#   var = "Sepal.Width",
+#   theta_obs = bt %>% dplyr::filter(id == "Apparent")
+# )
 
 
-context("boot_ci: Sufficient Number of Bootstrap Resamples")
-test_that("throw warning if theta_se equals 0 or infinity", {
-  set.seed(888)
-  bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
-    dplyr::mutate(tmean = get_tmean(splits))
+# context("boot_ci: Sufficient Number of Bootstrap Resamples")
+# test_that("throw warning if theta_se equals 0 or infinity", {
+#   set.seed(888)
+#   bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
+#     dplyr::mutate(tmean = get_tmean(splits))
 
   # expect_error(
   #   rsample:::boot_ci_t(
@@ -89,7 +97,8 @@ test_that("throw warning if theta_se equals 0 or infinity", {
   #     theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
   #   )
   # )
-})
+# })
+
 # test_that("At least B=1000 replications needed to sufficiently reduce Monte Carlo sampling Error for BCa method",{
 #   expect_error(
 #     rsample:::boot_ci_bca(
