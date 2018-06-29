@@ -31,8 +31,8 @@ boot_ci_t <- function(bt_resamples, alpha, data = NULL) {
 }
 
 
-boot_ci_perc <- function(bt_resamples, stat, alpha, data = NULL, theta_obs) {
-  z_dist <- bt_resamples[[stat]]
+boot_ci_perc <- function(bt_resamples, alpha, data = NULL, theta_obs) {
+  z_dist <- bt_resamples[["Z"]]
 
   if (all(is.na(z_dist)))
   stop("All statistics (z_dist) are missing values.", call. = FALSE)
