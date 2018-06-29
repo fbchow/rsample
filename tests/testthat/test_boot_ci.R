@@ -23,15 +23,16 @@ disp_effect <- function(dat) {
 # bt_splits <- bootstraps(mtcars, times = 20, apparent = TRUE) %>%
 #   mutate(beta = map_dbl(splits, function(x) disp_effect(analysis(x))))
 
+# TODO tried a bunch of purr funcs, none worked, kludge
 set.seed(55)
-bt_splits <- bootstraps(mtcars, times = 5000, apparent = TRUE) %>%
+bt_splits <- bootstraps(mtcars, times = 5000, apparent = TRUE)
+bt_splits <- bt_splits %>%
   as_tibble() %>%
   mutate(
     model = map(splits, function(x) lm(mpg ~ ., data = analysis(x))),
     wt_est = map_dbl(model, function(x) coef(x)["wt"]),
-    wt_var = map_dbl(model, function(x) vcov(x)["wt", "wt"])
-    ) %>%
-  as_tibble() %>% # TODO tried a bunch of purr funcs, none worked, this looks hacky
+    wt_var = map_dbl(model, function(x) vcov(x)["wt", "wt"]))
+bt_splits <- bt_splits %>%
   mutate(
     original = bt_splits %>% filter(id == "Apparent") %>% pull(wt_est),
     Z = (wt_est - original) / sqrt(wt_var)
