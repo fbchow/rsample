@@ -75,11 +75,11 @@ bt_splits <- bt_splits %>%
 
 
 
-results_coeff <- rsample:::boot_ci_bca(
-  bt_resamples = bt_splits,
-  stat = "beta",
-  alpha = 0.05
-)
+# results_coeff <- rsample:::boot_ci_bca(
+#   bt_resamples = bt_splits,
+#   stat = "beta",
+#   alpha = 0.05
+#)
 
 
 
@@ -107,13 +107,13 @@ results_percentile <- rsample:::boot_ci_perc(
   theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
 )
 
-results_bca <- rsample:::boot_ci_bca(
-  bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
-  stat = "tmean",
-  alpha = 0.05,
-  var = "Sepal.Width",
-  theta_obs = bt %>% dplyr::filter(id == "Apparent")
-)
+# results_bca <- rsample:::boot_ci_bca(
+#   bt_resamples = bt %>% dplyr::filter(id != "Apparent"),
+#   stat = "tmean",
+#   alpha = 0.05,
+#   var = "Sepal.Width",
+#   theta_obs = bt %>% dplyr::filter(id == "Apparent")
+# )
 
 
 context("boot_ci: Sufficient Number of Bootstrap Resamples")
@@ -131,16 +131,16 @@ test_that("throw warning if theta_se equals 0 or infinity", {
   #   )
   # )
 })
-test_that("At least B=1000 replications needed to sufficiently reduce Monte Carlo sampling Error for BCa method",{
-  expect_error(
-    rsample:::boot_ci_bca(
-      bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
-      stat = "tmean",
-      alpha = 0.05,
-      theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
-    )
-  )
-})
+# test_that("At least B=1000 replications needed to sufficiently reduce Monte Carlo sampling Error for BCa method",{
+#   expect_error(
+#     rsample:::boot_ci_bca(
+#       bt_resamples = bt_one %>% dplyr::filter(id != "Apparent"),
+#       stat = "tmean",
+#       alpha = 0.05,
+#       theta_obs = bt_one %>% dplyr::filter(id == "Apparent")
+#     )
+#   )
+# })
 
 
 # test_that('z_pntl has two unique values', {
@@ -248,18 +248,18 @@ test_that(
     #   theta_obs = bt_norm %>% dplyr::filter(id == "Apparent")
     # )
 
-    results_boot_bca <- rsample:::boot_ci_bca(
-      bt_resamples = bt_norm %>% dplyr::filter(id != "Apparent"),
-      stat = "tmean",,
-      alpha = 0.05,
-      var = "rand_nums",
-      theta_obs = bt_norm %>% dplyr::filter(id == "Apparent")
-    )
+    # results_boot_bca <- rsample:::boot_ci_bca(
+    #   bt_resamples = bt_norm %>% dplyr::filter(id != "Apparent"),
+    #   stat = "tmean",,
+    #   alpha = 0.05,
+    #   var = "rand_nums",
+    #   theta_obs = bt_norm %>% dplyr::filter(id == "Apparent")
+    # )
 
       # expect_equal(results_ttest$lower, results_boot_t$lower, tolerance = 0.01)
       # expect_equal(results_ttest$upper, results_boot_t$upper, tolerance = 0.01)
-      expect_equal(results_ttest$lower, results_boot_bca$lower, tolerance = 0.01)
-      expect_equal(results_ttest$upper, results_boot_bca$upper, tolerance = 0.01)
+      #expect_equal(results_ttest$lower, results_boot_bca$lower, tolerance = 0.01)
+      #expect_equal(results_ttest$upper, results_boot_bca$upper, tolerance = 0.01)
 
   }
 )
