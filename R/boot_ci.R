@@ -30,16 +30,20 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL, t
 }
 
 #' @export
-boot_ci_perc <- function(bt_resamples, Z, alpha = 0.05, data = NULL, theta_obs) {
-  z_dist <- bt_resamples[[Z]]
+boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL, theta_obs = NULL) {
 
-  if (all(is.na(z_dist)))
-  stop("All statistics (z_dist) are missing values.", call. = FALSE)
+  if (all(is.na(bt_resamples[[stat]])))
+    stop("All statistics (", stat, ") are missing values.", call. = FALSE)
 
   if (0 < alpha && alpha > 1)
-  stop("Your significance level (alpha) is unreasonable.", call. = FALSE)
+    stop("Your significance level (alpha) is unreasonable.", call. = FALSE)
 
-  ci <- quantile(z_dist, probs = c(alpha / 2, 1 - alpha / 2), na.rm = TRUE)
+  ci <-
+    bt_resamples %>%
+    filter(id != "Apparent") %>%
+    pull(!!stat) %>%
+    quantile(probs = c(alpha / 2, 1 - alpha / 2), na.rm = TRUE)
+
   tibble(
     lower = min(ci),
     upper = max(ci),
