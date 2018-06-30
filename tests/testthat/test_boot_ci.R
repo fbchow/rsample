@@ -5,13 +5,13 @@ library(purrr)
 library(tibble)
 library(dplyr)
 
-# EX 1: estimating regression coeff for one predictor
+# EX 1
 disp_effect <- function(dat) {
   lm_fit <- lm(mpg ~ ., data = dat)
   coef(lm_fit)["disp"]
 }
 
-# set.seed(55)
+set.seed(55)
 bt_splits <- bootstraps(mtcars, times = 5000, apparent = TRUE)
 bt_splits <- bt_splits %>%
   as_tibble() %>%
@@ -25,4 +25,22 @@ bt_splits <- bt_splits %>%
     Z = (wt_est - original) / sqrt(wt_var)
   )
 
-results_perc <- rsample:::boot_ci_perc(bt_splits, Z = "Z", alpha = 0.05, data = NULL)
+results_perc <- rsample:::boot_ci_perc(bt_splits,
+                                       stat = "Z",
+                                       alpha = 0.05,
+                                       data = NULL)
+
+# results_t <- rsample:::boot_ci_t(bt_splits,
+#                                  stat = " ",
+#                                  stat_var = " ",
+#                                  alpha = 0.05,
+#                                  data = NULL,
+#                                  theta_obs = " ",
+#                                  var_obs = " ")
+
+results_bca <- rsample:::boot_ci_bca(bt_splits,
+                                     theta_obs = "original",
+                                     stat = "wt_est",
+                                     func = disp_effect,
+                                     alpha = 0.05,
+                                     data = NULL)

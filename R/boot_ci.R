@@ -53,16 +53,16 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL, theta_ob
 }
 
 #' @export
-boot_ci_bca <- function(bt_resamples, func, alpha = 0.05, data = NULL){
+boot_ci_bca <- function(bt_resamples, theta_obs, stat, func, alpha = 0.05, data = NULL){
 
   if (nrow(bt_resamples) < 1000)
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)
 
-  theta_hat <- bt_resamples[["original"]][1]
+  theta_hat <- bt_resamples[[theta_obs]][1]
 
 
   ### Estimating Z0 bias-correction
-  po <- mean(bt_resamples[["wt_est"]] <= theta_hat, na.rm = TRUE)
+  po <- mean(bt_resamples[[stat]] <= theta_hat, na.rm = TRUE)
   Z0 <- qnorm(po)
   Za <- qnorm(1 - alpha / 2)
 
