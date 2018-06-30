@@ -29,7 +29,7 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL, t
   )
 }
 
-
+#' @export
 boot_ci_perc <- function(bt_resamples, Z, alpha = 0.05, data = NULL, theta_obs) {
   z_dist <- bt_resamples[[Z]]
 
@@ -48,7 +48,7 @@ boot_ci_perc <- function(bt_resamples, Z, alpha = 0.05, data = NULL, theta_obs) 
   )
 }
 
-
+#' @export
 boot_ci_bca <- function(bt_resamples, func, alpha = 0.05, data = NULL){
 
   if (nrow(bt_resamples) < 1000)
