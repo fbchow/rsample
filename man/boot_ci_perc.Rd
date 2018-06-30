@@ -4,16 +4,16 @@
 \alias{boot_ci_perc}
 \title{Bootstrap Confidence Intervals}
 \usage{
+<<<<<<< HEAD:man/boot_ci_perc.Rd
 boot_ci_perc(bt_resamples, Z, alpha, data = NULL, theta_obs)
+=======
+boot_ci_t(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL,
+  theta_obs, var_obs)
+>>>>>>> 292399e05b9c3bb8930ffa8a17d3f48f926a0770:man/boot_ci_t.Rd
 }
 \description{
 Bootstrap Confidence Intervals
 }
 \details{
 Calculate boostrap confidence intervals for a statistic of interest
-
- @importFrom dplyr mutate
- @importFrom stats sd
- @importFrom dplyr as_tibble
- @export
 }
