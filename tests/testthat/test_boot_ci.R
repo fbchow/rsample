@@ -147,7 +147,7 @@ get_median <- function(dat){
 
 set.seed(888)
   bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
-    dplyr::mutate(median_len = map_dbl(splits, function(x) get_median(analysis(x))))
+    dplyr::mutate(median_sepal = map_dbl(splits, function(x) get_median(analysis(x))))
 
 
 test_that("At least B=1000 replications needed to sufficiently reduce Monte Carlo sampling Error for BCa method",{
@@ -155,11 +155,20 @@ test_that("At least B=1000 replications needed to sufficiently reduce Monte Carl
     rsample:::boot_ci_bca(
       bt_one,
       theta_obs = "original",
-      stat = "median_len",
+      stat = "median_sepal",
       func = get_median,
-      Z = "median_len",
+      Z = "median_sepal",
       alpha = 0.05,
       data = NULL
     )
   )
+})
+
+
+test_that('theta_obs is not NA', {
+  expect_equal(sum(is.na(bt_one$median_sepal)), 0)
+})
+
+test_that('bt_resamples is a bootstrap object', {
+  expect_equal(class(bt_one)[1], "bootstraps")
 })

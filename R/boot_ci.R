@@ -9,6 +9,7 @@
 #' @importFrom stats sd quantile pnorm
 #' @importFrom dplyr as_tibble
 #' @export
+# TODO Resolve conflicts with previous implementations
 boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL, theta_obs, var_obs) {
 
   theta_obs <- theta_obs[[stat]]
@@ -55,6 +56,7 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL, theta_ob
 }
 
 #' @export
+# TODO Should Z be "test_stat or test_statistic" instead? Or is that a misnomer?
 boot_ci_bca <- function(bt_resamples, theta_obs, stat, func, Z, alpha = 0.05, data = NULL){
 
   if (nrow(bt_resamples) < 1000)
