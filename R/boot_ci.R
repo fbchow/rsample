@@ -29,6 +29,8 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL, t
   )
 }
 
+
+
 #' @export
 boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL, theta_obs = NULL) {
 
@@ -53,7 +55,7 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL, theta_ob
 }
 
 #' @export
-boot_ci_bca <- function(bt_resamples, theta_obs, stat, func, alpha = 0.05, data = NULL){
+boot_ci_bca <- function(bt_resamples, theta_obs, stat, func, Z, alpha = 0.05, data = NULL){
 
   if (nrow(bt_resamples) < 1000)
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)
@@ -79,7 +81,7 @@ boot_ci_bca <- function(bt_resamples, theta_obs, stat, func, alpha = 0.05, data 
   Zl <- (Z0 - Za) / (1 - a * (Z0 - Za)) + Z0 # Lower limit for Z
   lower_percentile <- pnorm(Zl, lower.tail = TRUE) # percentile for Z
   upper_percentile <- pnorm(Zu, lower.tail = TRUE) # percentile for Z
-  ci_bca <- as.numeric(quantile(bt_resamples[["Z"]], c(lower_percentile, upper_percentile))) # use percentiles in place of (alpha / 2) and  (1 - alpha / 2)
+  ci_bca <- as.numeric(quantile(bt_resamples[[Z]], c(lower_percentile, upper_percentile))) # use percentiles in place of (alpha / 2) and  (1 - alpha / 2)
 
   tibble(
   lower = min(ci_bca),
