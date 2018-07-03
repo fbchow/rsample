@@ -49,7 +49,9 @@ library(dplyr)
 #                                      data = NULL)
 
 
-context("boot_ci Check Against Standard Confidence Interval")
+
+
+context("boot_ci() Check Against Standard Confidence Interval")
 test_that(
   'Bootstrap estimate of mean is close to estimate of mean from normal distribution',
   {
@@ -76,18 +78,23 @@ test_that(
     }
 
     bt_norm <- bootstraps(x, times = 1000, apparent = TRUE) %>%
-      dplyr::mutate(
-        tmean = map_dbl(splits, function(x) get_mean(analysis(x))))
+      dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))))
 
     bt_norm$original <- mean(x$rand_nums, na.rm=TRUE)
 
 
-    results_mean_boot_perc <- rsample:::boot_ci_perc(
-      bt_norm,
-      stat = "tmean",
-      alpha = 0.05,
-      data = NULL
-    )
+    # results_mean_boot_perc <- rsample:::boot_ci_perc(
+    #   bt_norm,
+    #   stat = "tmean",
+    #   alpha = 0.05,
+    #   data = NULL
+    # )
+
+    # test pivot-t confidemce interval after refactoring
+    #   results_mean_boot_t <- rsample:::boot_ci_t(
+    #     bt_norm,
+    # )
+
 
     results_mean_boot_bca <- rsample:::boot_ci_bca(
       bt_norm,
@@ -108,3 +115,51 @@ test_that(
 
 
 
+
+
+context("boot_ci() Prompt Errors: Too Many Missing Values")
+test_that('Upper & lower confidence interval does not contain NA', {
+  iris_na <- iris
+  iris_na$Sepal.Width[c(1, 51, 101)] <- NA
+
+  set.seed(888)
+  bt_na <- bootstraps(iris_na, apparent = TRUE, times = 10000) %>%
+    dplyr::mutate(tmean = rep(NA_real_, 10001))
+
+  expect_error(
+    rsample:::boot_ci_perc(
+      bt_na,
+      stat = "tmean",
+      alpha = 0.05,
+      data = NULL
+    )
+  )
+})
+
+
+
+
+context("boot_ci: Sufficient Number of Bootstrap Resamples")
+
+get_median <- function(dat){
+  median(dat$Sepal.Length, na.rm = TRUE)
+}
+
+set.seed(888)
+  bt_one <- bootstraps(iris, apparent = TRUE, times = 1) %>%
+    dplyr::mutate(median_len = map_dbl(splits, function(x) get_median(analysis(x))))
+
+
+test_that("At least B=1000 replications needed to sufficiently reduce Monte Carlo sampling Error for BCa method",{
+  expect_warning(
+    rsample:::boot_ci_bca(
+      bt_one,
+      theta_obs = "original",
+      stat = "median_len",
+      func = get_median,
+      Z = "median_len",
+      alpha = 0.05,
+      data = NULL
+    )
+  )
+})
