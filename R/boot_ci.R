@@ -10,9 +10,10 @@
 #' @importFrom dplyr as_tibble
 #' @export
 # TODO Resolve conflicts with previous implementations
-boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL, theta_obs, var_obs) {
+boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 
-  theta_obs <- theta_obs[[stat]]
+  # theta_obs <- theta_obs[[stat]]
+  theta_obs <- bt_resamples[[original]]
   var_obs <- var_obs[[stat_var]]
 
   if (all(is.na(theta_obs)))
@@ -56,13 +57,12 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL, theta_ob
 }
 
 #' @export
-# TODO Should Z be "test_stat or test_statistic" instead? Or is that a misnomer?
-boot_ci_bca <- function(bt_resamples, theta_obs, stat, func, Z, alpha = 0.05, data = NULL){
+boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
 
   if (nrow(bt_resamples) < 1000)
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)
 
-  theta_hat <- bt_resamples[[theta_obs]][1]
+  theta_hat <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
 
 
   ### Estimating Z0 bias-correction
@@ -83,7 +83,7 @@ boot_ci_bca <- function(bt_resamples, theta_obs, stat, func, Z, alpha = 0.05, da
   Zl <- (Z0 - Za) / (1 - a * (Z0 - Za)) + Z0 # Lower limit for Z
   lower_percentile <- pnorm(Zl, lower.tail = TRUE) # percentile for Z
   upper_percentile <- pnorm(Zu, lower.tail = TRUE) # percentile for Z
-  ci_bca <- as.numeric(quantile(bt_resamples[[Z]], c(lower_percentile, upper_percentile))) # use percentiles in place of (alpha / 2) and  (1 - alpha / 2)
+  ci_bca <- as.numeric(quantile(bt_resamples[[stat]], c(lower_percentile, upper_percentile))) # use percentiles in place of (alpha / 2) and  (1 - alpha / 2)
 
   tibble(
   lower = min(ci_bca),

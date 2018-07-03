@@ -5,52 +5,6 @@ library(purrr)
 library(tibble)
 library(dplyr)
 
-
-# Try re-writing this example again later --------------------------------
-# set.seed(888)
-# disp_effect <- function(dat) {
-#   lm_fit <- lm(mpg ~ ., data = dat)
-#   coef(lm_fit)["disp"]
-# }
-
-# bt_splits <- bootstraps(mtcars, times = 5000, apparent = TRUE)
-# bt_splits <- bt_splits %>%
-#   as_tibble() %>%
-#   mutate(
-#     model = map(splits, function(x) lm(mpg ~ ., data = analysis(x))),
-#     wt_est = map_dbl(model, function(x) coef(x)["wt"]),
-#     wt_var = map_dbl(model, function(x) vcov(x)["wt", "wt"]))
-# bt_splits <- bt_splits %>%
-#   mutate(
-#     original = bt_splits %>% filter(id == "Apparent") %>% pull(wt_est),
-#     Z = (wt_est - original) / sqrt(wt_var)
-#   )
-
-# results_perc <- rsample:::boot_ci_perc(bt_splits,
-#                                        stat = "Z",
-#                                        alpha = 0.05,
-#                                        data = NULL)
-
-# results_t <- rsample:::boot_ci_t(bt_splits,
-#                                  stat = "wt_est",
-#                                  stat_var = "wt_var",
-#                                  alpha = 0.05,
-#                                  data = NULL,
-#                                  theta_obs = "original",
-#                                  var_obs = " ")
-
-
-# results_bca <- rsample:::boot_ci_bca(bt_splits,
-#                                      theta_obs = "original",
-#                                      stat = "wt_est",
-#                                      func = disp_effect,
-#                                      Z = "Z",
-#                                      alpha = 0.05,
-#                                      data = NULL)
-
-
-
-
 context("boot_ci() Check Against Standard Confidence Interval")
 test_that(
   'Bootstrap estimate of mean is close to estimate of mean from normal distribution',
@@ -66,8 +20,8 @@ test_that(
     ttest <- t.test(x)
 
     results_ttest <- tibble(
-      lower = ttest$conf.int[1],
-      upper = ttest$conf.int[2],
+      lower = min(ttest$conf.int),
+      upper = max(ttest$conf.int),
       alpha = 0.05,
       method = "t-test"
     )
@@ -80,7 +34,7 @@ test_that(
     bt_norm <- bootstraps(x, times = 1000, apparent = TRUE) %>%
       dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))))
 
-    bt_norm$original <- mean(x$rand_nums, na.rm=TRUE)
+    # bt_norm$original <- mean(x$rand_nums, na.rm=TRUE)
 
 
     # results_mean_boot_perc <- rsample:::boot_ci_perc(
@@ -98,10 +52,8 @@ test_that(
 
     results_mean_boot_bca <- rsample:::boot_ci_bca(
       bt_norm,
-      theta_obs = "original",
       stat = "tmean",
       func = get_mean,
-      Z = "tmean",
       alpha = 0.05,
       data = NULL
     )
@@ -154,10 +106,8 @@ test_that("At least B=1000 replications needed to sufficiently reduce Monte Carl
   expect_warning(
     rsample:::boot_ci_bca(
       bt_one,
-      theta_obs = "original",
       stat = "median_sepal",
       func = get_median,
-      Z = "median_sepal",
       alpha = 0.05,
       data = NULL
     )
