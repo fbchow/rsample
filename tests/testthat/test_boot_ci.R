@@ -31,23 +31,23 @@ test_that(
       mean(dat$rand_nums, na.rm = TRUE)
     }
 
-    bt_norm <- bootstraps(x, times = 100, apparent = TRUE) %>%
-      dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))))
+    get_sd <- function(dat){
+      sd(dat$rand_nums, na.rm = TRUE)
+    }
 
-    # results_mean_boot_perc <- rsample:::boot_ci_perc(
-    #   bt_norm,
-    #   stat = "tmean",
-    #   alpha = 0.05,
-    #   data = NULL
-    # )
+    bt_norm <- bootstraps(x, times = 1000, apparent = TRUE) %>%
+      dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))),
+                    tmean_var = map_dbl(splits, function(x) get_sd(analysis(x))))
+
 
     # test pivot-t confidemce interval after refactoring
-    #   results_mean_boot_t <- rsample:::boot_ci_t(
-    #     bt_norm,
-    #     stat = "tmean",
-    #     alpha = 0.05,
-    #     data = NULL
-    # )
+      results_mean_boot_t <- rsample:::boot_ci_t(
+        bt_norm,
+        stat = "tmean",
+        stat_var = "tmean_var",
+        alpha = 0.05,
+        data = NULL
+    )
 
 
     results_mean_boot_bca <- rsample:::boot_ci_bca(
@@ -58,8 +58,8 @@ test_that(
       data = NULL
     )
 
-    # expect_equal(results_ttest$lower, results_boot_t$lower, tolerance = 0.01)
-    # expect_equal(results_ttest$upper, results_boot_t$upper, tolerance = 0.01)
+    expect_equal(results_ttest$lower, results_mean_boot_t$lower, tolerance = 0.01)
+    expect_equal(results_ttest$upper, results_mean_boot_t$upper, tolerance = 0.01)
     expect_equal(results_ttest$lower, results_mean_boot_bca$lower, tolerance = 0.01)
     expect_equal(results_ttest$upper, results_mean_boot_bca$upper, tolerance = 0.01)
   }
