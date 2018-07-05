@@ -1,10 +1,11 @@
-#' Bootstrap Confidence Intervals
-#'
-#' @details
-#' Calculate boostrap confidence intervals for a statistic of interest
-#'
-#'  @export
 
+#' Student-T Bootstrap Confidence Intervals
+#' @description
+#' Calculate boostrap confidence intervals for a statistic of interest.
+#' @param bt_resamples An `rsplit` object created by the `boostraps` function
+#' @param stat A statistic of interest
+#' @param stat_var The variance of each boostrap resample
+#' @param alpha
 #' @importFrom dplyr mutate
 #' @importFrom stats sd quantile pnorm
 #' @importFrom dplyr as_tibble
@@ -24,7 +25,6 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
     stop("All elements of alpha must be in (0,1)")
 
   z_dist <- (bt_resamples[[stat]] - theta_obs) / sqrt(bt_resamples[[stat_var]])
-  # z_dist <- (bt_resamples[[stat]] - theta_obs)/ (sd(boot.sample)/sqrt(length(boot.sample)))
 
   z_pntl <- quantile(z_dist, probs = c(alpha / 2, 1 - (alpha) / 2), na.rm = TRUE)
   ci <- theta_obs - z_pntl * sqrt(var_obs)
@@ -38,10 +38,14 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
   )
 }
 
-
-
+#' Percentile Method
+#' @description
+#' Calculate boostrap confidence intervals for a statistic of interest.
+#' @param bt_resamples An `rsplit` object created by the `boostraps` function
+#' @param stat A statistic of interest
+#' @param alpha
 #' @export
-boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL, theta_obs = NULL) {
+boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
 
   if (all(is.na(bt_resamples[[stat]])))
     stop("All statistics (", stat, ") are missing values.", call. = FALSE)
@@ -63,6 +67,13 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL, theta_ob
   )
 }
 
+#' BCa Method
+#' @description
+#' Calculate boostrap confidence intervals for a statistic of interest.
+#' @param bt_resamples An `rsplit` object created by the `boostraps` function
+#' @param stat A statistic of interest
+#' @param func A function which when applied to data returns a vector containing the statistic(s) of interest.
+#' @param alpha
 #' @export
 boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
 
