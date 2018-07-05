@@ -39,7 +39,14 @@ test_that(
       dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))),
                     tmean_var = map_dbl(splits, function(x) get_sd(analysis(x))))
 
-      results_mean_boot_t <- rsample:::boot_ci_t(
+    results_mean_boot_perc <- rsample:::boot_ci_perc(
+      bt_norm,
+      stat = "tmean",
+      alpha = 0.05,
+      data = NULL
+    )
+
+    results_mean_boot_t <- rsample:::boot_ci_t(
         bt_norm,
         stat = "tmean",
         stat_var = "tmean_var",
@@ -66,7 +73,7 @@ test_that(
 
 
 
-context("boot_ci() Prompt Errors: Too Many Missing Values")
+context("boot_ci() Prompt Errors: Too Many NAs")
 test_that('Upper & lower confidence interval does not contain NA', {
   iris_na <- iris
   iris_na$Sepal.Width[c(1, 51, 101)] <- NA
@@ -109,7 +116,7 @@ test_that('Upper & lower confidence interval does not contain NA', {
 
 
 
-context("boot_ci: Sufficient Number of Bootstrap Resamples")
+context("boot_ci() Insufficient Number of Bootstrap Resamples")
 
 get_median <- function(dat){
   median(dat$Sepal.Length, na.rm = TRUE)
@@ -139,4 +146,12 @@ test_that('theta_obs is not NA', {
 
 test_that('bt_resamples is a bootstrap object', {
   expect_equal(class(bt_one)[1], "bootstraps")
+})
+
+
+context("boot_ci() Validate function parameters")
+test_that('alpha must be between 0 and 1', {
+  expect_error(rsample:::boot_ci_perc(bt_norm, stat = "tmean", alpha = 8, data = NULL))
+  expect_error(rsample:::boot_ci_t(bt_norm, stat = "tmean", stat_mean = "tmean_var", alpha = 8, data = NULL))
+  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = get_mean, alpha = 8, data = NULL))
 })

@@ -9,14 +9,19 @@
 #' @importFrom stats sd quantile pnorm
 #' @importFrom dplyr as_tibble
 #' @export
-# TODO Resolve conflicts with previous implementations
 boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 
   theta_obs <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
   var_obs <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat_var)
 
-  if (all(is.na(theta_obs)) | all(is.na(stat_var)))
-    stop("All statistics (theta_obs) are missing values.", call. = FALSE)
+  if (all(is.na(stat)))
+    stop("All statistics (", stat, ") are missing values.", call. = FALSE)
+
+  if(all(is.na(stat_var)))
+    stop("All statistics (", stat_var, ") are missing values.", call. = FALSE)
+
+  if (!all(alpha < 1) || !all(alpha > 0))
+    stop("All elements of alpha must be in (0,1)")
 
   z_dist <- (bt_resamples[[stat]] - theta_obs) / sqrt(bt_resamples[[stat_var]])
   # z_dist <- (bt_resamples[[stat]] - theta_obs)/ (sd(boot.sample)/sqrt(length(boot.sample)))
@@ -63,6 +68,9 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
 
   if (nrow(bt_resamples) < 1000)
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)
+
+  if (!all(alpha < 1) || !all(alpha > 0))
+    stop("All elements of alpha must be in (0,1)")
 
   theta_hat <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
 
