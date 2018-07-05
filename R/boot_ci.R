@@ -13,18 +13,13 @@
 boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 
   theta_obs <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
-
-  # var_obs <- var_obs[[stat_var]]
   var_obs <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat_var)
 
-
-  if (all(is.na(theta_obs)))
+  if (all(is.na(theta_obs)) | all(is.na(stat_var)))
     stop("All statistics (theta_obs) are missing values.", call. = FALSE)
 
   z_dist <- (bt_resamples[[stat]] - theta_obs) / sqrt(bt_resamples[[stat_var]])
-
   # z_dist <- (bt_resamples[[stat]] - theta_obs)/ (sd(boot.sample)/sqrt(length(boot.sample)))
-
 
   z_pntl <- quantile(z_dist, probs = c(alpha / 2, 1 - (alpha) / 2), na.rm = TRUE)
   ci <- theta_obs - z_pntl * sqrt(var_obs)

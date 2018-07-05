@@ -39,8 +39,6 @@ test_that(
       dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))),
                     tmean_var = map_dbl(splits, function(x) get_sd(analysis(x))))
 
-
-    # test pivot-t confidemce interval after refactoring
       results_mean_boot_t <- rsample:::boot_ci_t(
         bt_norm,
         stat = "tmean",
@@ -48,7 +46,6 @@ test_that(
         alpha = 0.05,
         data = NULL
     )
-
 
     results_mean_boot_bca <- rsample:::boot_ci_bca(
       bt_norm,
@@ -86,6 +83,27 @@ test_that('Upper & lower confidence interval does not contain NA', {
       data = NULL
     )
   )
+
+  expect_error(
+    rsample:::boot_ci_t(
+      bt_na,
+      stat = "tmean",
+      stat_var = "tmean_var",
+      alpha = 0.05,
+      data = NULL
+      )
+  )
+
+  expect_error(
+    rsample:::boot_ci_bca(
+      bt_na,
+      stat = "tmean",
+      stat_var = get_mean,
+      alpha = 0.05,
+      data = NULL
+    )
+  )
+
 })
 
 
