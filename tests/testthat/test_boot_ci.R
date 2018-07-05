@@ -31,11 +31,8 @@ test_that(
       mean(dat$rand_nums, na.rm = TRUE)
     }
 
-    bt_norm <- bootstraps(x, times = 1000, apparent = TRUE) %>%
+    bt_norm <- bootstraps(x, times = 100, apparent = TRUE) %>%
       dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))))
-
-    # bt_norm$original <- mean(x$rand_nums, na.rm=TRUE)
-
 
     # results_mean_boot_perc <- rsample:::boot_ci_perc(
     #   bt_norm,
@@ -47,6 +44,9 @@ test_that(
     # test pivot-t confidemce interval after refactoring
     #   results_mean_boot_t <- rsample:::boot_ci_t(
     #     bt_norm,
+    #     stat = "tmean",
+    #     alpha = 0.05,
+    #     data = NULL
     # )
 
 

@@ -12,9 +12,9 @@
 # TODO Resolve conflicts with previous implementations
 boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 
-  # theta_obs <- theta_obs[[stat]]
-  theta_obs <- bt_resamples[[original]]
+  theta_obs <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
   var_obs <- var_obs[[stat_var]]
+
 
   if (all(is.na(theta_obs)))
     stop("All statistics (theta_obs) are missing values.", call. = FALSE)
@@ -23,9 +23,10 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
   z_pntl <- quantile(z_dist, probs = c(alpha / 2, 1 - (alpha) / 2), na.rm = TRUE)
   ci <- theta_obs - z_pntl * sqrt(var_obs)
 
+
   tibble(
-    lower = min(ci),
-    upper = max(ci),
+    lower = min(ci_t),
+    upper = max(ci_t),
     alpha = alpha,
     method = "bootstrap-t"
   )
