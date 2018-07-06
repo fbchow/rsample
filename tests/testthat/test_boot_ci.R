@@ -32,13 +32,13 @@ test_that(
     }
 
     # TODO I must have messed this up
-    get_sd <- function(dat){
-      sd(dat$rand_nums, na.rm = TRUE)
+    get_var <- function(dat){
+      var(dat$rand_nums, na.rm = TRUE)
     }
 
     bt_norm <- bootstraps(x, times = 1000, apparent = TRUE) %>%
       dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))),
-                    tmean_var = map_dbl(splits, function(x) get_sd(analysis(x))))
+                    tmean_var = map_dbl(splits, function(x) get_var(analysis(x))))
 
     results_mean_boot_perc <- rsample:::boot_ci_perc(
       bt_norm,
@@ -80,7 +80,7 @@ test_that('Upper & lower confidence interval does not contain NA', {
   iris_na$Sepal.Width[c(1, 51, 101)] <- NA
 
   set.seed(888)
-  bt_na <- bootstraps(iris_na, apparent = TRUE, times = 10000) %>%
+  bt_na <- bootstraps(iris_na, apparent = TRUE, times = 1000) %>%
     dplyr::mutate(tmean = rep(NA_real_, 10001))
 
   expect_error(
