@@ -7,12 +7,12 @@
 boot_ci_bca(bt_resamples, stat, func, alpha = 0.05, data = NULL)
 }
 \arguments{
-\item{bt_resamples}{An `rsplit` object created by the `boostraps` function}
+\item{bt_resamples}{An `rsplit` object created by the `bootstraps` function}
 
 \item{stat}{A statistic of interest}
 
 \item{func}{A function which when applied to data returns a vector containing the statistic(s) of interest.}
 }
 \description{
-Calculate boostrap confidence intervals for a statistic of interest.
+Calculate bootstrap confidence intervals for a statistic of interest.
 }

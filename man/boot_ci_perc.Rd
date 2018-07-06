@@ -7,10 +7,10 @@
 boot_ci_perc(bt_resamples, stat, alpha = 0.05, data = NULL)
 }
 \arguments{
-\item{bt_resamples}{An `rsplit` object created by the `boostraps` function}
+\item{bt_resamples}{An `rsplit` object created by the `bootstraps` function}
 
 \item{stat}{A statistic of interest}
 }
 \description{
-Calculate boostrap confidence intervals for a statistic of interest.
+Calculate bootstrap confidence intervals for a statistic of interest.
 }

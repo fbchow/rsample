@@ -7,12 +7,12 @@
 boot_ci_t(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL)
 }
 \arguments{
-\item{bt_resamples}{An `rsplit` object created by the `boostraps` function}
+\item{bt_resamples}{An `rsplit` object created by the `bootstraps` function}
 
 \item{stat}{A statistic of interest}
 
-\item{stat_var}{The variance of each boostrap resample}
+\item{stat_var}{The variance of each bootstrap resample}
 }
 \description{
-Calculate boostrap confidence intervals for a statistic of interest.
+Calculate bootstrap confidence intervals for a statistic of interest.
 }

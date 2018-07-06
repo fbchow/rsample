@@ -1,10 +1,10 @@
 
 #' Student-T Bootstrap Confidence Intervals
 #' @description
-#' Calculate boostrap confidence intervals for a statistic of interest.
-#' @param bt_resamples An `rsplit` object created by the `boostraps` function
+#' Calculate bootstrap confidence intervals for a statistic of interest.
+#' @param bt_resamples An `rsplit` object created by the `bootstraps` function
 #' @param stat A statistic of interest
-#' @param stat_var The variance of each boostrap resample
+#' @param stat_var The variance of each bootstrap resample
 #' @param alpha
 #' @importFrom dplyr mutate
 #' @importFrom stats sd quantile pnorm
@@ -40,8 +40,8 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 
 #' Percentile Method
 #' @description
-#' Calculate boostrap confidence intervals for a statistic of interest.
-#' @param bt_resamples An `rsplit` object created by the `boostraps` function
+#' Calculate bootstrap confidence intervals for a statistic of interest.
+#' @param bt_resamples An `rsplit` object created by the `bootstraps` function
 #' @param stat A statistic of interest
 #' @param alpha
 #' @export
@@ -69,8 +69,8 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
 
 #' BCa Method
 #' @description
-#' Calculate boostrap confidence intervals for a statistic of interest.
-#' @param bt_resamples An `rsplit` object created by the `boostraps` function
+#' Calculate bootstrap confidence intervals for a statistic of interest.
+#' @param bt_resamples An `rsplit` object created by the `bootstraps` function
 #' @param stat A statistic of interest
 #' @param func A function which when applied to data returns a vector containing the statistic(s) of interest.
 #' @param alpha

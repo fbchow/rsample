@@ -26,11 +26,12 @@ test_that(
       method = "t-test"
     )
 
-    set.seed(888)
+    # TODO keep checking: Is it bad to call dat$rand_nums? Rewrite lm coefficient func test call
     get_mean <- function(dat){
       mean(dat$rand_nums, na.rm = TRUE)
     }
 
+    # TODO I must have messed this up
     get_sd <- function(dat){
       sd(dat$rand_nums, na.rm = TRUE)
     }
