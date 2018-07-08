@@ -83,6 +83,10 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
   if (!all(alpha < 1) || !all(alpha > 0))
     stop("All elements of alpha must be in (0,1)")
 
+  if (class(func) != "function")
+    stop("Please enter a function to caculate a statistic of interest.")
+
+
   theta_hat <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
 
 
@@ -114,3 +118,11 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
   method = "BCa"
   )
 }
+
+
+
+# boot_ci_32 <- function(
+#
+#
+# )
+

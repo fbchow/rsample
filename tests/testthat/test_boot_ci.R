@@ -26,12 +26,11 @@ test_that(
       method = "t-test"
     )
 
-    # TODO keep checking: Is it bad to call dat$rand_nums? Rewrite lm coefficient func test call
+    # TODO keep checking: Is it bad to call dat$rand_nums like this?
     get_mean <- function(dat){
       mean(dat$rand_nums, na.rm = TRUE)
     }
 
-    # TODO I must have messed this up
     get_var <- function(dat){
       var(dat$rand_nums, na.rm = TRUE)
     }
@@ -81,7 +80,7 @@ test_that('Upper & lower confidence interval does not contain NA', {
 
   set.seed(888)
   bt_na <- bootstraps(iris_na, apparent = TRUE, times = 1000) %>%
-    dplyr::mutate(tmean = rep(NA_real_, 10001))
+    dplyr::mutate(tmean = rep(NA_real_, 1001))
 
   expect_error(
     rsample:::boot_ci_perc(
@@ -153,6 +152,13 @@ test_that('bt_resamples is a bootstrap object', {
 context("boot_ci() Validate function parameters")
 test_that('alpha must be between 0 and 1', {
   expect_error(rsample:::boot_ci_perc(bt_norm, stat = "tmean", alpha = 8, data = NULL))
+
   expect_error(rsample:::boot_ci_t(bt_norm, stat = "tmean", stat_mean = "tmean_var", alpha = 8, data = NULL))
+
   expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = get_mean, alpha = 8, data = NULL))
+})
+
+
+test_that('must enter a function in BCa CI',{
+  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = "title I edumacation", alpha = 0.5, data = NULL))
 })
