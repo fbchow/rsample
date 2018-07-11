@@ -24,6 +24,9 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
   if (!all(alpha < 1) || !all(alpha > 0))
     stop("All elements of alpha must be in (0,1)")
 
+  if (missing(stat))
+    stop("Please specify statistic of interest (stat).")
+
   z_dist <- (bt_resamples[[stat]] - theta_obs) / sqrt(bt_resamples[[stat_var]])
 
   z_pntl <- quantile(z_dist, probs = c(alpha / 2, 1 - (alpha) / 2), na.rm = TRUE)
@@ -52,6 +55,9 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
 
   if (0 < alpha && alpha > 1)
     stop("Your significance level (alpha) is unreasonable.", call. = FALSE)
+
+  if (missing(stat))
+    stop("Please specify statistic of interest (stat).")
 
   ci <-
     bt_resamples %>%
@@ -84,7 +90,10 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
     stop("All elements of alpha must be in (0,1)")
 
   if (class(func) != "function")
-    stop("Please enter a function to caculate a statistic of interest.")
+    stop("Please enter a function to calculate a statistic of interest.")
+
+  if (missing(stat))
+    stop("Please specify statistic of interest (stat).")
 
 
   theta_hat <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
@@ -119,10 +128,4 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
   )
 }
 
-
-
-# boot_ci_32 <- function(
-#
-#
-# )
 

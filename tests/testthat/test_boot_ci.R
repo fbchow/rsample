@@ -160,5 +160,14 @@ test_that('alpha must be between 0 and 1', {
 
 
 test_that('must enter a function in BCa CI',{
-  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = "title I edumacation", alpha = 0.5, data = NULL))
+  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = "Lal", alpha = 0.5, data = NULL))
+
+  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = "Lal", alpha = 0.5, data = NULL))
 })
+
+test_that("statistic is entered",{
+  expect_error(rsample:::boot_ci_bca(bt_norm, func = "Lal", alpha = 0.5, data = NULL))
+})
+
+
+
