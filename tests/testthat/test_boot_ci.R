@@ -15,9 +15,9 @@ test_that(
 
     set.seed(888)
     rand_nums <- rnorm(n, mean, sd)
-    x <- as.data.frame(rand_nums)
+    random_nums <- as.data.frame(rand_nums)
 
-    ttest <- t.test(x)
+    ttest <- t.test(random_nums)
 
     results_ttest <- tibble(
       lower = min(ttest$conf.int),
@@ -28,14 +28,14 @@ test_that(
 
     # TODO keep checking: Is it bad to call dat$rand_nums like this?
     get_mean <- function(dat){
-      mean(dat$rand_nums, na.rm = TRUE)
+      mean(dat[['rand_nums']], na.rm = TRUE)
     }
 
     get_var <- function(dat){
-      var(dat$rand_nums, na.rm = TRUE)
+      var(dat[['rand_nums']], na.rm = TRUE)
     }
 
-    bt_norm <- bootstraps(x, times = 1000, apparent = TRUE) %>%
+    bt_norm <- bootstraps(random_nums, times = 1000, apparent = TRUE) %>%
       dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))),
                     tmean_var = map_dbl(splits, function(x) get_var(analysis(x))))
 
@@ -162,11 +162,19 @@ test_that('alpha must be between 0 and 1', {
 test_that('must enter a function in BCa CI',{
   expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = "Lal", alpha = 0.5, data = NULL))
 
-  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = "Lal", alpha = 0.5, data = NULL))
 })
 
 test_that("statistic is entered",{
   expect_error(rsample:::boot_ci_bca(bt_norm, func = "Lal", alpha = 0.5, data = NULL))
+})
+
+test_that("bootstraps(apparent = TRUE)",{
+  get_mean <- function(dat){
+    mean(dat[['Sepal.Length']], na.rm = TRUE)
+  }
+  bt_small <- bootstraps(iris, times = 1000, apparent = FALSE) %>%
+    dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))))
+  expect_error(rsample:::boot_ci_bca(bt_small, func = get_mean, stat = "tmean", alpha = 0.5, data = NULL))
 })
 
 

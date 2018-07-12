@@ -9,6 +9,7 @@
 #' @importFrom dplyr mutate
 #' @importFrom stats sd quantile pnorm
 #' @importFrom dplyr as_tibble
+#' @importFrom dplyr last
 #' @export
 boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 
@@ -95,12 +96,16 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
   if (missing(stat))
     stop("Please specify statistic of interest (stat).")
 
+  if(bt_resamples %>% pull("id") %>% dplyr::last() != "Apparent")
+    stop("Please set apparent=TRUE in bootstraps() function")
+
 
   theta_hat <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
 
 
   ### Estimating Z0 bias-correction
-  po <- mean(bt_resamples[[stat]] <= theta_hat, na.rm = TRUE)
+  # po <- mean(bt_resamples[[stat]] <= theta_hat, na.rm = TRUE)
+  po <- mean(bt_resamples %>% pull(!!stat) <= theta_hat, na.rm = TRUE)
   Z0 <- qnorm(po)
   Za <- qnorm(1 - alpha / 2)
 
