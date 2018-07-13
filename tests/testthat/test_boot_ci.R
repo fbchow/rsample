@@ -26,7 +26,6 @@ test_that(
       method = "t-test"
     )
 
-    # TODO keep checking: Is it bad to call dat$rand_nums like this?
     get_mean <- function(dat){
       mean(dat[['rand_nums']], na.rm = TRUE)
     }
@@ -160,7 +159,7 @@ test_that('alpha must be between 0 and 1', {
 
 
 test_that('must enter a function in BCa CI',{
-  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = "Lal", alpha = 0.5, data = NULL))
+  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = Lal, alpha = 0.5, data = NULL))
 
 })
 

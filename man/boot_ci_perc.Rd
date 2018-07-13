@@ -10,6 +10,10 @@ boot_ci_perc(bt_resamples, stat, alpha = 0.05, data = NULL)
 \item{bt_resamples}{An `rsplit` object created by the `bootstraps` function}
 
 \item{stat}{A statistic of interest}
+
+\item{alpha}{level of significance}
+
+\item{data}{NULL}
 }
 \description{
 Calculate bootstrap confidence intervals for a statistic of interest.

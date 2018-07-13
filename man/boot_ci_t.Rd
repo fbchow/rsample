@@ -12,6 +12,10 @@ boot_ci_t(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL)
 \item{stat}{A statistic of interest}
 
 \item{stat_var}{The variance of each bootstrap resample}
+
+\item{alpha}{level of significance}
+
+\item{data}{NULL}
 }
 \description{
 Calculate bootstrap confidence intervals for a statistic of interest.

@@ -5,16 +5,24 @@
 #' @param bt_resamples An `rsplit` object created by the `bootstraps` function
 #' @param stat A statistic of interest
 #' @param stat_var The variance of each bootstrap resample
-#' @param alpha
+#' @param alpha level of significance
+#' @param data NULL
 #' @importFrom dplyr mutate
 #' @importFrom stats sd quantile pnorm
 #' @importFrom dplyr as_tibble
 #' @importFrom dplyr last
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFom dplyr pluck
 #' @export
 boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 
-  theta_obs <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
-  var_obs <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat_var)
+  theta_obs <- bt_resamples %>%
+    dplyr::filter(id == "Apparent") %>%
+    dplyr::pull(!!stat)
+  var_obs <- bt_resamples %>%
+    dplyr::filter(id == "Apparent") %>%
+    dplyr::pull(!!stat_var)
 
   if (all(is.na(stat)))
     stop("All statistics (", stat, ") are missing values.", call. = FALSE)
@@ -47,7 +55,8 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 #' Calculate bootstrap confidence intervals for a statistic of interest.
 #' @param bt_resamples An `rsplit` object created by the `bootstraps` function
 #' @param stat A statistic of interest
-#' @param alpha
+#' @param alpha level of significance
+#' @param data NULL
 #' @export
 boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
 
@@ -60,10 +69,11 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
   if (missing(stat))
     stop("Please specify statistic of interest (stat).")
 
+
   ci <-
     bt_resamples %>%
-    filter(id != "Apparent") %>%
-    pull(!!stat) %>%
+    dplyr::filter(id != "Apparent") %>%
+    dplyr::pull(!!stat) %>%
     quantile(probs = c(alpha / 2, 1 - alpha / 2), na.rm = TRUE)
 
   tibble(
@@ -80,7 +90,8 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
 #' @param bt_resamples An `rsplit` object created by the `bootstraps` function
 #' @param stat A statistic of interest
 #' @param func A function which when applied to data returns a vector containing the statistic(s) of interest.
-#' @param alpha
+#' @param alpha level of significance
+#' @param data NULL
 #' @export
 boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
 
@@ -99,20 +110,20 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
   if(bt_resamples %>% pull("id") %>% dplyr::last() != "Apparent")
     stop("Please set apparent=TRUE in bootstraps() function")
 
-
-  theta_hat <- bt_resamples %>% filter(id == "Apparent") %>% pull(!!stat)
-
+  theta_hat <- bt_resamples %>%
+    dplyr::filter(id == "Apparent") %>%
+    dplyr::pull(!!stat)
 
   ### Estimating Z0 bias-correction
   # po <- mean(bt_resamples[[stat]] <= theta_hat, na.rm = TRUE)
-  po <- mean(bt_resamples %>% pull(!!stat) <= theta_hat, na.rm = TRUE)
+  po <- mean(bt_resamples %>% dplyr::pull(!!stat) <= theta_hat, na.rm = TRUE)
   Z0 <- qnorm(po)
   Za <- qnorm(1 - alpha / 2)
 
   leave_one_out_theta <- loo_cv(bt_resamples %>%
-                                  filter(id == "Apparent") %>%
+                                  dplyr::filter(id == "Apparent") %>%
                                   pluck("splits", 1, "data")) %>%
-    mutate(loo_est = map_dbl(splits, function(x, f) f(analysis(x)), f = func))
+            dplyr::mutate(loo_est = map_dbl(splits, function(x, f) f(analysis(x)), f = func))
 
   theta_minus_one <- mean(leave_one_out_theta$loo_est, na.rm = TRUE)
   a <- sum( (theta_minus_one - leave_one_out_theta$loo_est) ^ 3) / ( 6 * (sum( (theta_minus_one - leave_one_out_theta$loo_est) ^ 2)) ^ (3 / 2) )

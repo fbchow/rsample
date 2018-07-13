@@ -12,6 +12,10 @@ boot_ci_bca(bt_resamples, stat, func, alpha = 0.05, data = NULL)
 \item{stat}{A statistic of interest}
 
 \item{func}{A function which when applied to data returns a vector containing the statistic(s) of interest.}
+
+\item{alpha}{level of significance}
+
+\item{data}{NULL}
 }
 \description{
 Calculate bootstrap confidence intervals for a statistic of interest.
