@@ -13,7 +13,7 @@
 #' @importFrom dplyr last
 #' @importFrom dplyr filter
 #' @importFrom dplyr pull
-#' @importFom dplyr pluck
+#' @importFrom purrr pluck
 #' @export
 boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 
@@ -89,7 +89,7 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
 #' Calculate bootstrap confidence intervals for a statistic of interest.
 #' @param bt_resamples An `rsplit` object created by the `bootstraps` function
 #' @param stat A statistic of interest
-#' @param func A function which when applied to data returns a vector containing the statistic(s) of interest.
+#' @param func A function which when applied to data returns a vector containing the statistics of interest.
 #' @param alpha level of significance
 #' @param data NULL
 #' @export
@@ -104,11 +104,16 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
   if (class(func) != "function")
     stop("Please enter a function to calculate a statistic of interest.")
 
+# TODO trouble figuring out tidy evaluation still...
+  # if (func())
+  #   stop("Your function", func, "needs to accept a data.frame or tibble as arguments.")
+
   if (missing(stat))
     stop("Please specify statistic of interest (stat).")
 
   if(bt_resamples %>% pull("id") %>% dplyr::last() != "Apparent")
     stop("Please set apparent=TRUE in bootstraps() function")
+
 
   theta_hat <- bt_resamples %>%
     dplyr::filter(id == "Apparent") %>%

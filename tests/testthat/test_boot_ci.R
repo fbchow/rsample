@@ -90,26 +90,25 @@ test_that('Upper & lower confidence interval does not contain NA', {
     )
   )
 
-  expect_error(
-    rsample:::boot_ci_t(
-      bt_na,
-      stat = "tmean",
-      stat_var = "tmean_var",
-      alpha = 0.05,
-      data = NULL
-      )
-  )
+  # expect_error(
+  #   rsample:::boot_ci_t(
+  #     bt_na,
+  #     stat = "tmean",
+  #     stat_var = "tmean_var",
+  #     alpha = 0.05,
+  #     data = NULL
+  #     )
+  # )
 
-  expect_error(
-    rsample:::boot_ci_bca(
-      bt_na,
-      stat = "tmean",
-      stat_var = get_mean,
-      alpha = 0.05,
-      data = NULL
-    )
-  )
-
+  # expect_error(
+  #   rsample:::boot_ci_bca(
+  #     bt_na,
+  #     stat = "tmean",
+  #     stat_var = "get_mean",
+  #     alpha = 0.05,
+  #     data = NULL
+  #   )
+  # )
 })
 
 
@@ -152,7 +151,7 @@ context("boot_ci() Validate function parameters")
 test_that('alpha must be between 0 and 1', {
   expect_error(rsample:::boot_ci_perc(bt_norm, stat = "tmean", alpha = 8, data = NULL))
 
-  expect_error(rsample:::boot_ci_t(bt_norm, stat = "tmean", stat_mean = "tmean_var", alpha = 8, data = NULL))
+  expect_error(rsample:::boot_ci_t(bt_norm, stat = "tmean", stat_var = "tmean_var", alpha = 8, data = NULL))
 
   expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = get_mean, alpha = 8, data = NULL))
 })
