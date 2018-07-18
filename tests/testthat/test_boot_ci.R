@@ -176,4 +176,7 @@ test_that("bootstraps(apparent = TRUE)",{
 })
 
 
+test_that('must enter a bootstraps object',{
+  expect_error(rsample:::boot_ci_bca("blah", stat = "tmean", func = get_mean, alpha = 0.5, data = NULL))
+})
 

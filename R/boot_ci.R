@@ -36,6 +36,7 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
   if (missing(stat))
     stop("Please specify statistic of interest (stat).")
 
+  # T.b = (theta.i-theta.obs)/(sd(boot.sample)/sqrt(length(boot.sample)))
   z_dist <- (bt_resamples[[stat]] - theta_obs) / sqrt(bt_resamples[[stat_var]])
 
   z_pntl <- quantile(z_dist, probs = c(alpha / 2, 1 - (alpha) / 2), na.rm = TRUE)
@@ -104,8 +105,11 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
   if (class(func) != "function")
     stop("Please enter a function to calculate a statistic of interest.")
 
+  if (class(bt_resamples)[1] != "bootstraps")
+    stop("Please enter a bootstraps sample using the rsample package.")
+
 # TODO trouble figuring out tidy evaluation still...
-  # if (func())
+  # if (type(func(args)) != data.frame)
   #   stop("Your function", func, "needs to accept a data.frame or tibble as arguments.")
 
   if (missing(stat))
