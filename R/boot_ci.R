@@ -93,8 +93,9 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
 #' @param func A function which when applied to data returns a vector containing the statistics of interest.
 #' @param alpha level of significance
 #' @param data NULL
+#' @param ... Optional extra arguments to pass to `func`.
 #' @export
-boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
+boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL, ...){
 
   if (nrow(bt_resamples) < 1000)
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)
@@ -132,7 +133,8 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
   leave_one_out_theta <- loo_cv(bt_resamples %>%
                                   dplyr::filter(id == "Apparent") %>%
                                   pluck("splits", 1, "data")) %>%
-            dplyr::mutate(loo_est = map_dbl(splits, function(x, f) f(analysis(x)), f = func))
+            dplyr::mutate(loo_est =
+                            map_dbl(splits, function(x) func(analysis(x), ...)))
 
   theta_minus_one <- mean(leave_one_out_theta$loo_est, na.rm = TRUE)
   a <- sum( (theta_minus_one - leave_one_out_theta$loo_est) ^ 3) / ( 6 * (sum( (theta_minus_one - leave_one_out_theta$loo_est) ^ 2)) ^ (3 / 2) )

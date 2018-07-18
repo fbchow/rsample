@@ -4,7 +4,7 @@
 \alias{boot_ci_bca}
 \title{BCa Method}
 \usage{
-boot_ci_bca(bt_resamples, stat, func, alpha = 0.05, data = NULL)
+boot_ci_bca(bt_resamples, stat, func, alpha = 0.05, data = NULL, ...)
 }
 \arguments{
 \item{bt_resamples}{An `rsplit` object created by the `bootstraps` function}
@@ -16,6 +16,8 @@ boot_ci_bca(bt_resamples, stat, func, alpha = 0.05, data = NULL)
 \item{alpha}{level of significance}
 
 \item{data}{NULL}
+
+\item{...}{Optional extra arguments to pass to `func`.}
 }
 \description{
 Calculate bootstrap confidence intervals for a statistic of interest.
