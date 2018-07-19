@@ -4,7 +4,7 @@
 \alias{boot_ci_perc}
 \title{Percentile Method}
 \usage{
-boot_ci_perc(bt_resamples, stat, alpha = 0.05, data = NULL)
+boot_ci_perc(bt_resamples, stat, alpha = 0.05, ...)
 }
 \arguments{
 \item{bt_resamples}{An `rsplit` object created by the `bootstraps` function}

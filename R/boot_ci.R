@@ -1,4 +1,3 @@
-
 #' Student-T Bootstrap Confidence Intervals
 #' @description
 #' Calculate bootstrap confidence intervals for a statistic of interest.
@@ -15,7 +14,7 @@
 #' @importFrom dplyr pull
 #' @importFrom purrr pluck
 #' @export
-boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
+boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, ...) {
 
   theta_obs <- bt_resamples %>%
     dplyr::filter(id == "Apparent") %>%
@@ -60,7 +59,7 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
 #' @param alpha level of significance
 #' @param data NULL
 #' @export
-boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
+boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, ...) {
 
   if (all(is.na(bt_resamples[[stat]])))
     stop("All statistics (", stat, ") are missing values.", call. = FALSE)
@@ -96,7 +95,7 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
 #' @param data NULL
 #' @param ... Optional extra arguments to pass to `func`.
 #' @export
-boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL, ...){
+boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, ...){
 
   if (nrow(bt_resamples) < 1000)
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)

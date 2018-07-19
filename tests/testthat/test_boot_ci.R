@@ -41,24 +41,21 @@ test_that(
     results_mean_boot_perc <- rsample:::boot_ci_perc(
       bt_norm,
       stat = "tmean",
-      alpha = 0.05,
-      data = NULL
+      alpha = 0.05
     )
 
     results_mean_boot_t <- rsample:::boot_ci_t(
         bt_norm,
         stat = "tmean",
         stat_var = "tmean_var",
-        alpha = 0.05,
-        data = NULL
+        alpha = 0.05
     )
 
     results_mean_boot_bca <- rsample:::boot_ci_bca(
       bt_norm,
       stat = "tmean",
       func = get_mean,
-      alpha = 0.05,
-      data = NULL
+      alpha = 0.05
     )
 
     expect_equal(results_ttest$lower, results_mean_boot_t$lower, tolerance = 0.01)
@@ -85,8 +82,7 @@ test_that('Upper & lower confidence interval does not contain NA', {
     rsample:::boot_ci_perc(
       bt_na,
       stat = "tmean",
-      alpha = 0.05,
-      data = NULL
+      alpha = 0.05
     )
   )
 
@@ -131,8 +127,7 @@ test_that("At least B=1000 replications needed to sufficiently reduce Monte Carl
       bt_one,
       stat = "median_sepal",
       func = get_median,
-      alpha = 0.05,
-      data = NULL
+      alpha = 0.05
     )
   )
 })
@@ -149,21 +144,21 @@ test_that('bt_resamples is a bootstrap object', {
 
 context("boot_ci() Validate function parameters")
 test_that('alpha must be between 0 and 1', {
-  expect_error(rsample:::boot_ci_perc(bt_norm, stat = "tmean", alpha = 8, data = NULL))
+  expect_error(rsample:::boot_ci_perc(bt_norm, stat = "tmean", alpha = 8))
 
-  expect_error(rsample:::boot_ci_t(bt_norm, stat = "tmean", stat_var = "tmean_var", alpha = 8, data = NULL))
+  expect_error(rsample:::boot_ci_t(bt_norm, stat = "tmean", stat_var = "tmean_var", alpha = 8))
 
-  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = get_mean, alpha = 8, data = NULL))
+  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = get_mean, alpha = 8))
 })
 
 
 test_that('must enter a function in BCa CI',{
-  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = Lal, alpha = 0.5, data = NULL))
+  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = Lal, alpha = 0.5))
 
 })
 
 test_that("statistic is entered",{
-  expect_error(rsample:::boot_ci_bca(bt_norm, func = "Lal", alpha = 0.5, data = NULL))
+  expect_error(rsample:::boot_ci_bca(bt_norm, func = "Lal", alpha = 0.5))
 })
 
 test_that("bootstraps(apparent = TRUE)",{
@@ -172,11 +167,11 @@ test_that("bootstraps(apparent = TRUE)",{
   }
   bt_small <- bootstraps(iris, times = 1000, apparent = FALSE) %>%
     dplyr::mutate(tmean = map_dbl(splits, function(x) get_mean(analysis(x))))
-  expect_error(rsample:::boot_ci_bca(bt_small, func = get_mean, stat = "tmean", alpha = 0.5, data = NULL))
+  expect_error(rsample:::boot_ci_bca(bt_small, func = get_mean, stat = "tmean", alpha = 0.5))
 })
 
 
   test_that('must enter a bootstraps object',{
-    expect_error(rsample:::boot_ci_bca("blah", stat = "tmean", func = get_mean, alpha = 0.5, data = NULL))
+    expect_error(rsample:::boot_ci_bca("blah", stat = "tmean", func = get_mean, alpha = 0.5))
 })
 

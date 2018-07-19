@@ -4,7 +4,7 @@
 \alias{boot_ci_t}
 \title{Student-T Bootstrap Confidence Intervals}
 \usage{
-boot_ci_t(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL)
+boot_ci_t(bt_resamples, stat, stat_var, alpha = 0.05, ...)
 }
 \arguments{
 \item{bt_resamples}{An `rsplit` object created by the `bootstraps` function}
