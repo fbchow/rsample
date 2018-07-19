@@ -24,6 +24,7 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
     dplyr::filter(id == "Apparent") %>%
     dplyr::pull(!!stat_var)
 
+  # TODO check if codecovers for this test...
   if (all(is.na(stat)))
     stop("All statistics (", stat, ") are missing values.", call. = FALSE)
 
@@ -31,10 +32,10 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, data = NULL) {
     stop("All statistics (", stat_var, ") are missing values.", call. = FALSE)
 
   if (!all(alpha < 1) || !all(alpha > 0))
-    stop("All elements of alpha must be in (0,1)")
+    stop("All elements of alpha must be in (0,1)", call. = FALSE)
 
   if (missing(stat))
-    stop("Please specify statistic of interest (stat).")
+    stop("Please specify statistic of interest (stat).", call. = FALSE)
 
   # T.b = (theta.i-theta.obs)/(sd(boot.sample)/sqrt(length(boot.sample)))
   z_dist <- (bt_resamples[[stat]] - theta_obs) / sqrt(bt_resamples[[stat_var]])
@@ -68,7 +69,7 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, data = NULL) {
     stop("Your significance level (alpha) is unreasonable.", call. = FALSE)
 
   if (missing(stat))
-    stop("Please specify statistic of interest (stat).")
+    stop("Please specify statistic of interest (stat).", call. = FALSE)
 
 
   ci <-
@@ -100,23 +101,24 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)
 
   if (!all(alpha < 1) || !all(alpha > 0))
-    stop("All elements of alpha must be in (0,1)")
+    stop("All elements of alpha must be in (0,1)", call. = FALSE)
 
+  #TODO add call. = false
   if (class(func) != "function")
-    stop("Please enter a function to calculate a statistic of interest.")
+    stop("Please enter a function to calculate a statistic of interest.", call. = FALSE)
 
   if (class(bt_resamples)[1] != "bootstraps")
-    stop("Please enter a bootstraps sample using the rsample package.")
+    stop("Please enter a bootstraps sample using the rsample package.", call. = FALSE)
 
-# TODO trouble figuring out tidy evaluation still...
+# TODO
   # if (type(func(args)) != data.frame)
   #   stop("Your function", func, "needs to accept a data.frame or tibble as arguments.")
 
   if (missing(stat))
-    stop("Please specify statistic of interest (stat).")
+    stop("Please specify statistic of interest (stat).", call. = FALSE)
 
   if(bt_resamples %>% pull("id") %>% dplyr::last() != "Apparent")
-    stop("Please set apparent=TRUE in bootstraps() function")
+    stop("Please set apparent=TRUE in bootstraps() function", call. = FALSE)
 
 
   theta_hat <- bt_resamples %>%
@@ -124,7 +126,6 @@ boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, data = NULL){
     dplyr::pull(!!stat)
 
   ### Estimating Z0 bias-correction
-  # po <- mean(bt_resamples[[stat]] <= theta_hat, na.rm = TRUE)
   po <- mean(bt_resamples %>% dplyr::pull(!!stat) <= theta_hat, na.rm = TRUE)
   Z0 <- qnorm(po)
   Za <- qnorm(1 - alpha / 2)
