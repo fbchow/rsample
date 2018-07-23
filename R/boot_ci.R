@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+
 #' Student-T Bootstrap Confidence Intervals
 #' @description
 #' Calculate bootstrap confidence intervals for a statistic of interest.
@@ -5,7 +13,6 @@
 #' @param stat A statistic of interest
 #' @param stat_var The variance of each bootstrap resample
 #' @param alpha level of significance
-#' @param data NULL
 #' @importFrom dplyr mutate
 #' @importFrom stats sd quantile pnorm
 #' @importFrom dplyr as_tibble
@@ -14,7 +21,7 @@
 #' @importFrom dplyr pull
 #' @importFrom purrr pluck
 #' @export
-boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, ...) {
+boot_ci_t <- function(bt_resamples, alpha = 0.05, stat, stat_var, ...) {
 
   theta_obs <- bt_resamples %>%
     dplyr::filter(id == "Apparent") %>%
@@ -57,15 +64,14 @@ boot_ci_t <- function(bt_resamples, stat, stat_var, alpha = 0.05, ...) {
 #' @param bt_resamples An `rsplit` object created by the `bootstraps` function
 #' @param stat A statistic of interest
 #' @param alpha level of significance
-#' @param data NULL
 #' @export
-boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, ...) {
+boot_ci_perc <- function(bt_resamples, alpha = 0.05, stat, ...) {
 
   if (all(is.na(bt_resamples[[stat]])))
     stop("All statistics (", stat, ") are missing values.", call. = FALSE)
 
-  if (0 < alpha && alpha > 1)
-    stop("Your significance level (alpha) is unreasonable.", call. = FALSE)
+  # if (0 < alpha && alpha > 1)
+    # stop("Your significance level (alpha) is unreasonable.", call. = FALSE)
 
   if (missing(stat))
     stop("Please specify statistic of interest (stat).", call. = FALSE)
@@ -92,10 +98,9 @@ boot_ci_perc <- function(bt_resamples, stat, alpha = 0.05, ...) {
 #' @param stat A statistic of interest
 #' @param func A function which when applied to data returns a vector containing the statistics of interest.
 #' @param alpha level of significance
-#' @param data NULL
 #' @param ... Optional extra arguments to pass to `func`.
 #' @export
-boot_ci_bca <- function(bt_resamples, stat, func, alpha = 0.05, ...){
+boot_ci_bca <- function(bt_resamples, alpha = 0.05, stat, func, ...){
 
   if (nrow(bt_resamples) < 1000)
     warning("Recommend at least 1000 bootstrap resamples.", call. = FALSE)

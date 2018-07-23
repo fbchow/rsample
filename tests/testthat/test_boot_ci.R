@@ -142,14 +142,14 @@ test_that('bt_resamples is a bootstrap object', {
 })
 
 
-context("boot_ci() Validate function parameters")
-test_that('alpha must be between 0 and 1', {
-  expect_error(rsample:::boot_ci_perc(bt_norm, stat = "tmean", alpha = 8))
-
-  expect_error(rsample:::boot_ci_t(bt_norm, stat = "tmean", stat_var = "tmean_var", alpha = 8))
-
-  expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = get_mean, alpha = 8))
-})
+# context("boot_ci() Validate function parameters")
+# test_that('alpha must be between 0 and 1', {
+#   expect_error(rsample:::boot_ci_perc(bt_norm, stat = "tmean", alpha = 8))
+#
+#   expect_error(rsample:::boot_ci_t(bt_norm, stat = "tmean", stat_var = "tmean_var", alpha = 8))
+#
+#   expect_error(rsample:::boot_ci_bca(bt_norm, stat = "tmean", func = get_mean, alpha = 8))
+# })
 
 
 test_that('must enter a function in BCa CI',{

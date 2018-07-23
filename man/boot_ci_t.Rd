@@ -4,18 +4,16 @@
 \alias{boot_ci_t}
 \title{Student-T Bootstrap Confidence Intervals}
 \usage{
-boot_ci_t(bt_resamples, stat, stat_var, alpha = 0.05, ...)
+boot_ci_t(bt_resamples, alpha = 0.05, stat, stat_var, ...)
 }
 \arguments{
 \item{bt_resamples}{An `rsplit` object created by the `bootstraps` function}
 
+\item{alpha}{level of significance}
+
 \item{stat}{A statistic of interest}
 
 \item{stat_var}{The variance of each bootstrap resample}
-
-\item{alpha}{level of significance}
-
-\item{data}{NULL}
 }
 \description{
 Calculate bootstrap confidence intervals for a statistic of interest.
