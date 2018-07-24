@@ -1,8 +1,119 @@
+boot_ci <- function(resamples_object,
+                    ...,
+                    method = c("percentile", "bca", "student-t"),
+                    alpha = 0.05)  {
+  method <- match.arg(method)
+
+  other_options <- quos(...)
+  other_names <- names(other_options)
+
+  # arguments named at birth of `boot_ci()` function call
+  args <- other_options[other_names != ""]
+  if (any(names(args) == "func")) {
+    bca_names <- names(args)[!(names(args) %in% c("", "stat_var"))]
+    bca_args <- args[bca_names]
+
+  } else{
+    bca_args <- NULL
+  }
 
 
+  if (any(names(args) == "stat_var")) {
+    t_args <- args["stat_var"]
+
+  } else{
+    t_args <- NULL
+  }
 
 
+  # arugments with no names at birth `boot_ci()` function call
+  predictor_vars <- other_options[other_names == ""]
 
+  # clean, get values, unpack, prepare for evaluation
+  predictors <-
+    unname(vars_select(names(resamples_object), !!!predictor_vars))
+
+
+  if (method == "percentile") {
+    # We should assume that there are multiple columns being analyzed so we
+    # would need to iterate over their names(in `predictors`).
+    # Instead of a `for` loop, let's use `map`
+    perc_wrapper <- function(stat, bt_resamples, alpha) {
+      boot_ci_perc(bt_resamples = bt_resamples,
+                   alpha = alpha,
+                   stat = stat)
+    }
+
+
+    results <-
+      map_dfr(predictors,
+              perc_wrapper,
+              bt_resamples = resamples_object,
+              alpha = alpha) %>%
+      mutate(variable = predictors)
+    return(results)
+  }
+
+
+  if (method == "student-t") {
+    var_predictors <-
+      unname(vars_select(names(resamples_object), !!!t_args))
+
+
+    t_wrapper <- function(stat, stat_var, bt_resamples, alpha) {
+      boot_ci_t(
+        bt_resamples = bt_resamples,
+        alpha = alpha,
+        stat = stat,
+        stat_var = stat_var
+      )
+    }
+
+    map_expr <-
+      map2(predictors,
+           var_predictors,
+           t_wrapper,
+           resamples_object,
+           alpha = alpha)
+
+    results <- eval_tidy(map_expr)
+    return(results)
+
+    # give them back their names!
+    names(results) <- predictors
+    list(confidence = results)
+
+  }
+
+
+  if (method == "bca") {
+    bca_wrapper <- function(stat, bt_resamples, alpha, func, ...) {
+      # browser()
+      res <- boot_ci_bca(
+        bt_resamples = bt_resamples,
+        alpha = alpha,
+        stat = stat,
+        func = func,
+        ...
+      )
+      return(res)
+    }
+
+    map_expr <-
+      quo(map(
+        predictors,
+        bca_wrapper,
+        resamples_object,
+        alpha = alpha,!!!bca_args
+      ))
+    results <- eval_tidy(map_expr)
+    return(results)
+
+    # give them back their names!
+    names(results) <- predictors
+    list(confidence = results)
+  }
+}
 
 
 
