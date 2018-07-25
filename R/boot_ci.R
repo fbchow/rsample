@@ -62,7 +62,7 @@ boot_ci <- function(resamples_object,
   }
 
 
-  if (method == "bootstrap-t") {
+  if (method == "student-t") {
     var_predictors <-
       unname(vars_select(names(resamples_object), !!!t_args))
 
