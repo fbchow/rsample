@@ -1,3 +1,10 @@
+#' Nonparametric Bootstrap Confidence Intervals
+#' @description
+#' Calculate bootstrap confidence intervals for a statistic of interest.
+#' @param resamples_object An `rsplit` object created by the `bootstraps` function
+#' @param method "percentile", "bca", or "student-t"
+#' @param alpha level of significance
+#' @export
 boot_ci <- function(resamples_object,
                     ...,
                     method = c("percentile", "bca", "student-t"),
@@ -77,7 +84,7 @@ boot_ci <- function(resamples_object,
            alpha = alpha)
 
     results <- eval_tidy(map_expr)
-    return(results)
+    # return(results)
 
     # give them back their names!
     names(results) <- predictors
@@ -88,7 +95,6 @@ boot_ci <- function(resamples_object,
 
   if (method == "bca") {
     bca_wrapper <- function(stat, bt_resamples, alpha, func, ...) {
-      # browser()
       res <- boot_ci_bca(
         bt_resamples = bt_resamples,
         alpha = alpha,
