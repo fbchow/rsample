@@ -252,14 +252,20 @@ boot_ci_bca <- function(bt_resamples, alpha = 0.05, stat, func, ...){
   Z0 <- qnorm(po)
   Za <- qnorm(1 - alpha / 2)
 
-  leave_one_out_theta <- loo_cv(bt_resamples %>%
-                                  dplyr::filter(id == "Apparent") %>%
-                                  pluck("splits", 1, "data")) %>%
-            dplyr::mutate(loo_est =
-                            map_dbl(splits, function(x) func(analysis(x), ...)))
+  loo_rs <-
+    loo_cv(
+      bt_resamples %>%
+        dplyr::filter(id == "Apparent") %>%
+        pluck("splits", 1, "data")
+      )
+  # maybe do a test with the first resample to see what you get back (vector or
+  # data frame)
+  leave_one_out_theta <- 
+    map_dfr(loo_rs$splits, function(x) func(analysis(x), ...))[[stat]]
 
-  theta_minus_one <- mean(leave_one_out_theta$loo_est, na.rm = TRUE)
-  a <- sum( (theta_minus_one - leave_one_out_theta$loo_est) ^ 3) / ( 6 * (sum( (theta_minus_one - leave_one_out_theta$loo_est) ^ 2)) ^ (3 / 2) )
+  theta_minus_one <- mean(leave_one_out_theta, na.rm = TRUE)
+  a <- sum( (theta_minus_one - leave_one_out_theta) ^ 3) / 
+    ( 6 * (sum( (theta_minus_one - leave_one_out_theta) ^ 2)) ^ (3 / 2) )
 
   Zu <- (Z0 + Za) / ( 1 - a * (Z0 + Za)) + Z0 # upper limit for Z
   Zl <- (Z0 - Za) / (1 - a * (Z0 - Za)) + Z0 # lower limit for Z
