@@ -62,7 +62,7 @@ boot_ci <- function(resamples_object,
   }
 
 
-  if (method == "student-t") {
+  if (method == "bootstrap-t") {
     var_predictors <-
       unname(vars_select(names(resamples_object), !!!t_args))
 
@@ -77,18 +77,18 @@ boot_ci <- function(resamples_object,
     }
 
     map_expr <-
-      map2(predictors,
+      map2_df(predictors,
            var_predictors,
            t_wrapper,
            resamples_object,
            alpha = alpha)
 
     results <- eval_tidy(map_expr)
-    # return(results)
+    return(results)
 
     # give them back their names!
-    names(results) <- predictors
-    list(confidence = results)
+    # names(results) <- predictors
+    # list(confidence = results)
 
   }
 
@@ -106,7 +106,7 @@ boot_ci <- function(resamples_object,
     }
 
     map_expr <-
-      quo(map(
+      quo(map_df(
         predictors,
         bca_wrapper,
         resamples_object,
@@ -116,8 +116,8 @@ boot_ci <- function(resamples_object,
     return(results)
 
     # give them back their names!
-    names(results) <- predictors
-    list(confidence = results)
+    # names(results) <- predictors
+    # list(confidence = results)
   }
 }
 
