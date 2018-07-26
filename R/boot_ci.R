@@ -4,6 +4,8 @@
 #' @param resamples_object An `rsplit` object created by the `bootstraps` function
 #' @param method "percentile", "bca", or "student-t"
 #' @param alpha level of significance
+#' @importFrom rlang eval_tidy quos quo
+#' @importFrom tidyselect vars_select
 #' @export
 boot_ci <- function(resamples_object,
                     ...,
@@ -83,7 +85,8 @@ boot_ci <- function(resamples_object,
            resamples_object,
            alpha = alpha)
 
-    results <- eval_tidy(map_expr)
+    results <- eval_tidy(map_expr) %>%
+      mutate(variable = predictors)
     return(results)
 
     # give them back their names!
@@ -112,7 +115,8 @@ boot_ci <- function(resamples_object,
         resamples_object,
         alpha = alpha,!!!bca_args
       ))
-    results <- eval_tidy(map_expr)
+    results <- eval_tidy(map_expr) %>%
+      mutate(variable = predictors)
     return(results)
 
     # give them back their names!
@@ -258,11 +262,25 @@ boot_ci_bca <- function(bt_resamples, alpha = 0.05, stat, func, ...){
         dplyr::filter(id == "Apparent") %>%
         pluck("splits", 1, "data")
       )
-  # maybe do a test with the first resample to see what you get back (vector or
-  # data frame)
-  leave_one_out_theta <- 
-    map_dfr(loo_rs$splits, function(x) func(analysis(x), ...))[[stat]]
-
+  
+  # We can't be sure what we will get back from the analysis function. 
+  # To test, we run on the first LOO data set and see if it is a vector or
+  # df
+  loo_test <- func(analysis(loo_rs$splits[[1]]), ...)
+  if (is.vector(loo_test)) {
+    if (length(loo_test) > 1)
+      stop("The function should return a single value or a data frame/",
+           "tibble.", call. = FALSE)
+    leave_one_out_theta <-
+      map_dbl(loo_rs$splits, function(x) func(analysis(x), ...))
+  } else {
+    if (!is.data.frame(loo_test))
+      stop("The function should return a single value or a data frame/",
+           "tibble.", call. = FALSE) 
+    leave_one_out_theta <-
+      map_dfr(loo_rs$splits, function(x) func(analysis(x), ...))[[stat]]
+  }
+  
   theta_minus_one <- mean(leave_one_out_theta, na.rm = TRUE)
   a <- sum( (theta_minus_one - leave_one_out_theta) ^ 3) / 
     ( 6 * (sum( (theta_minus_one - leave_one_out_theta) ^ 2)) ^ (3 / 2) )
