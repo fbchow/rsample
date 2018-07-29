@@ -10,6 +10,8 @@ boot_ci(resamples_object, ..., method = c("percentile", "bca", "student-t"),
 \arguments{
 \item{resamples_object}{An `rsplit` object created by the `bootstraps` function}
 
+\item{...}{confidence interval arguments}
+
 \item{method}{"percentile", "bca", or "student-t"}
 
 \item{alpha}{level of significance}

@@ -2,10 +2,12 @@
 #' @description
 #' Calculate bootstrap confidence intervals for a statistic of interest.
 #' @param resamples_object An `rsplit` object created by the `bootstraps` function
+#' @param ... confidence interval arguments
 #' @param method "percentile", "bca", or "student-t"
 #' @param alpha level of significance
 #' @importFrom rlang eval_tidy quos quo
 #' @importFrom tidyselect vars_select
+#' @importFrom purrr map_dbl map2_dfr
 #' @export
 boot_ci <- function(resamples_object,
                     ...,
@@ -18,6 +20,9 @@ boot_ci <- function(resamples_object,
 
   # arguments named at birth of `boot_ci()` function call
   args <- other_options[other_names != ""]
+
+  browser()
+
   if (any(names(args) == "func")) {
     bca_names <- names(args)[!(names(args) %in% c("", "stat_var"))]
     bca_args <- args[bca_names]
@@ -34,6 +39,7 @@ boot_ci <- function(resamples_object,
     t_args <- NULL
   }
 
+  browser()
 
   # arugments with no names at birth `boot_ci()` function call
   predictor_vars <- other_options[other_names == ""]
@@ -65,6 +71,9 @@ boot_ci <- function(resamples_object,
 
 
   if (method == "student-t") {
+
+    # browser()
+
     var_predictors <-
       unname(vars_select(names(resamples_object), !!!t_args))
 
@@ -88,10 +97,6 @@ boot_ci <- function(resamples_object,
     results <- eval_tidy(map_expr) %>%
       mutate(variable = predictors)
     return(results)
-
-    # give them back their names!
-    # names(results) <- predictors
-    # list(confidence = results)
 
   }
 
@@ -119,9 +124,6 @@ boot_ci <- function(resamples_object,
       mutate(variable = predictors)
     return(results)
 
-    # give them back their names!
-    # names(results) <- predictors
-    # list(confidence = results)
   }
 }
 
@@ -134,6 +136,7 @@ boot_ci <- function(resamples_object,
 #' @param stat A statistic of interest
 #' @param stat_var The variance of each bootstrap resample
 #' @param alpha level of significance
+#' @param ... confidence interval arguments
 #' @importFrom dplyr mutate
 #' @importFrom stats sd quantile pnorm
 #' @importFrom dplyr as_tibble
@@ -185,6 +188,7 @@ boot_ci_t <- function(bt_resamples, alpha = 0.05, stat, stat_var, ...) {
 #' @param bt_resamples An `rsplit` object created by the `bootstraps` function
 #' @param stat A statistic of interest
 #' @param alpha level of significance
+#' @param ... confidence interval arguments
 #' @export
 boot_ci_perc <- function(bt_resamples, alpha = 0.05, stat, ...) {
 
@@ -262,11 +266,14 @@ boot_ci_bca <- function(bt_resamples, alpha = 0.05, stat, func, ...){
         dplyr::filter(id == "Apparent") %>%
         pluck("splits", 1, "data")
       )
-  
-  # We can't be sure what we will get back from the analysis function. 
+
+  # We can't be sure what we will get back from the analysis function.
   # To test, we run on the first LOO data set and see if it is a vector or
   # df
   loo_test <- func(analysis(loo_rs$splits[[1]]), ...)
+
+  # browser()
+
   if (is.vector(loo_test)) {
     if (length(loo_test) > 1)
       stop("The function should return a single value or a data frame/",
@@ -276,20 +283,19 @@ boot_ci_bca <- function(bt_resamples, alpha = 0.05, stat, func, ...){
   } else {
     if (!is.data.frame(loo_test))
       stop("The function should return a single value or a data frame/",
-           "tibble.", call. = FALSE) 
+           "tibble.", call. = FALSE)
     leave_one_out_theta <-
       map_dfr(loo_rs$splits, function(x) func(analysis(x), ...))[[stat]]
   }
-  
+
   theta_minus_one <- mean(leave_one_out_theta, na.rm = TRUE)
-  a <- sum( (theta_minus_one - leave_one_out_theta) ^ 3) / 
+  a <- sum( (theta_minus_one - leave_one_out_theta) ^ 3) /
     ( 6 * (sum( (theta_minus_one - leave_one_out_theta) ^ 2)) ^ (3 / 2) )
 
   Zu <- (Z0 + Za) / ( 1 - a * (Z0 + Za)) + Z0 # upper limit for Z
   Zl <- (Z0 - Za) / (1 - a * (Z0 - Za)) + Z0 # lower limit for Z
   lower_percentile <- pnorm(Zl, lower.tail = TRUE) # percentile for Z
   upper_percentile <- pnorm(Zu, lower.tail = TRUE) # percentile for Z
-  # use percentiles in place of (alpha / 2) and  (1 - alpha / 2)
   ci_bca <- as.numeric(quantile(bt_resamples[[stat]], c(lower_percentile, upper_percentile)))
 
 

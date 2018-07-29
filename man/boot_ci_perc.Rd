@@ -12,6 +12,8 @@ boot_ci_perc(bt_resamples, alpha = 0.05, stat, ...)
 \item{alpha}{level of significance}
 
 \item{stat}{A statistic of interest}
+
+\item{...}{confidence interval arguments}
 }
 \description{
 Calculate bootstrap confidence intervals for a statistic of interest.
