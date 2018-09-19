@@ -15,7 +15,7 @@ boot_ci_bca(bt_resamples, alpha = 0.05, stat, func, ...)
 
 \item{func}{A function which when applied to data returns a vector containing the statistics of interest.}
 
-\item{...}{Optional extra arguments to pass to `func`.}
+\item{...}{Optional extra arguments to pass to `func`}
 }
 \description{
 Calculate bootstrap confidence intervals for a statistic of interest.

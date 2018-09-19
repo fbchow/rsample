@@ -7,8 +7,8 @@
 #' @param alpha level of significance
 #' @importFrom rlang eval_tidy quos quo
 #' @importFrom tidyselect vars_select
-#' @importFrom purrr map_dbl map2_dfr
-#' @importFrom furrr future_map_dfr future_map2_dfr
+#' @importFrom purrr map_dbl map2_dfr map_dfr
+#' @importFrom furrr future_map_dfr future_map2_dfr future_map_dbl
 #' @export
 boot_ci <- function(resamples_object,
                     ...,
@@ -21,8 +21,6 @@ boot_ci <- function(resamples_object,
 
   # arguments named at birth of `boot_ci()` function call
   args <- other_options[other_names != ""]
-
-  browser()
 
   if (any(names(args) == "func")) {
     bca_names <- names(args)[!(names(args) %in% c("", "stat_var"))]
@@ -40,7 +38,6 @@ boot_ci <- function(resamples_object,
     t_args <- NULL
   }
 
-  browser()
 
   # arugments with no names at birth `boot_ci()` function call
   predictor_vars <- other_options[other_names == ""]
@@ -87,7 +84,7 @@ boot_ci <- function(resamples_object,
     }
 
     map_expr <-
-      map2_df(predictors,
+      future_map2_dfr(predictors,
            var_predictors,
            t_wrapper,
            resamples_object,
@@ -113,7 +110,7 @@ boot_ci <- function(resamples_object,
     }
 
     map_expr <-
-      quo(future_map2_dfr(
+      quo(future_map_dfr(
         predictors,
         bca_wrapper,
         resamples_object,
@@ -222,7 +219,9 @@ boot_ci_perc <- function(bt_resamples, alpha = 0.05, stat, ...) {
 #' @param stat A statistic of interest
 #' @param func A function which when applied to data returns a vector containing the statistics of interest.
 #' @param alpha level of significance
-#' @param ... Optional extra arguments to pass to `func`.
+#' @param ... Optional extra arguments to pass to `func`
+#' @importFrom furrr future_map_dbl
+#' @importFrom furrr future_map_dfr
 #' @export
 boot_ci_bca <- function(bt_resamples, alpha = 0.05, stat, func, ...){
 
@@ -271,20 +270,18 @@ boot_ci_bca <- function(bt_resamples, alpha = 0.05, stat, func, ...){
   # df
   loo_test <- func(analysis(loo_rs$splits[[1]]), ...)
 
-  # browser()
-
   if (is.vector(loo_test)) {
     if (length(loo_test) > 1)
       stop("The function should return a single value or a data frame/",
            "tibble.", call. = FALSE)
     leave_one_out_theta <-
-      map_dbl(loo_rs$splits, function(x) func(analysis(x), ...))
+      future_map_dbl(loo_rs$splits, function(x) func(analysis(x), ...))
   } else {
     if (!is.data.frame(loo_test))
       stop("The function should return a single value or a data frame/",
            "tibble.", call. = FALSE)
     leave_one_out_theta <-
-      map_dfr(loo_rs$splits, function(x) func(analysis(x), ...))[[stat]]
+      future_map_dfr(loo_rs$splits, function(x) func(analysis(x), ...))[[stat]]
   }
 
   theta_minus_one <- mean(leave_one_out_theta, na.rm = TRUE)

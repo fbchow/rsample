@@ -4,8 +4,8 @@
 \alias{gather.rset}
 \title{Gather an `rset` Object}
 \usage{
-\method{gather}{rset}(data, key = NULL, value = NULL, ..., na.rm = TRUE,
-  convert = FALSE, factor_key = TRUE)
+\method{gather}{rset}(data, key = NULL, value = NULL, ...,
+  na.rm = TRUE, convert = FALSE, factor_key = TRUE)
 }
 \arguments{
 \item{data}{An `rset` object.}

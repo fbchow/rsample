@@ -4,8 +4,8 @@
 \alias{boot_ci}
 \title{Nonparametric Bootstrap Confidence Intervals}
 \usage{
-boot_ci(resamples_object, ..., method = c("percentile", "bca", "student-t"),
-  alpha = 0.05)
+boot_ci(resamples_object, ..., method = c("percentile", "bca",
+  "student-t"), alpha = 0.05)
 }
 \arguments{
 \item{resamples_object}{An `rsplit` object created by the `bootstraps` function}
