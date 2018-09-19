@@ -8,6 +8,7 @@
 #' @importFrom rlang eval_tidy quos quo
 #' @importFrom tidyselect vars_select
 #' @importFrom purrr map_dbl map2_dfr
+#' @importFrom furrr future_map_dfr future_map2_dfr
 #' @export
 boot_ci <- function(resamples_object,
                     ...,
@@ -61,7 +62,7 @@ boot_ci <- function(resamples_object,
 
 
     results <-
-      map_dfr(predictors,
+      future_map_dfr(predictors,
               perc_wrapper,
               bt_resamples = resamples_object,
               alpha = alpha) %>%
@@ -71,8 +72,6 @@ boot_ci <- function(resamples_object,
 
 
   if (method == "student-t") {
-
-    # browser()
 
     var_predictors <-
       unname(vars_select(names(resamples_object), !!!t_args))
@@ -114,7 +113,7 @@ boot_ci <- function(resamples_object,
     }
 
     map_expr <-
-      quo(map_df(
+      quo(future_map2_dfr(
         predictors,
         bca_wrapper,
         resamples_object,
