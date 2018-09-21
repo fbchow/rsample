@@ -8,12 +8,17 @@
 #' @importFrom rlang eval_tidy quos quo
 #' @importFrom tidyselect vars_select
 #' @importFrom purrr map_dbl map2_dfr map_dfr
+#' @importFrom future plan
 #' @importFrom furrr future_map_dfr future_map2_dfr future_map_dbl
 #' @export
 boot_ci <- function(resamples_object,
                     ...,
                     method = c("percentile", "bca", "student-t"),
                     alpha = 0.05)  {
+
+#TODO - is this right? 
+plan(multiprocess)
+
   method <- match.arg(method)
 
   other_options <- quos(...)
