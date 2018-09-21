@@ -16,8 +16,8 @@ boot_ci <- function(resamples_object,
                     method = c("percentile", "bca", "student-t"),
                     alpha = 0.05)  {
 
-#TODO - is this right? 
-plan(multiprocess)
+  #TODO - is this right?
+  plan(multiprocess)
 
   method <- match.arg(method)
 
