@@ -1,4 +1,5 @@
-
+<b>Latest version here:</b><br>
+https://github.com/tidymodels/rsample/tree/confidence_intervals
 
 <img src="rsample_hex_thumb.png" title="hex sticker thumb" alt="rsample" style="display: block; margin: auto;" />
 
